@@ -1,93 +1,110 @@
-# CGRA350_Project
+# CGRA OpenGL Base Project
 
+# Requirements
 
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.ecs.vuw.ac.nz/readbenj/cgra350_project.git
-git branch -M main
-git push -uf origin main
+The project requires [CMake](https://cmake.org/) to build before compiling. The recommended way to build to project is to create a build folder then using CMake to create to project inside it. Make sure that you are creating the build folder in the same directory as the work folder.
+```sh
+$ mkdir build
 ```
 
-## Integrate with your tools
+This project also requires OpenGL v3.3 and a suitable C++11 compiler.
 
-- [ ] [Set up project integrations](https://gitlab.ecs.vuw.ac.nz/readbenj/cgra350_project/-/settings/integrations)
 
-## Collaborate with your team
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## Linux
 
-## Test and Deploy
+#### Command Line
 
-Use the built-in continuous integration in GitLab.
+The simpliest way to set up a basic project is to run the shell script `f5.sh` which runs the `cmake`, `make` and run commands for you.
+```sh
+$ ./f5.sh
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Alternativiely you can run the commands manually.
+```sh
+$ cd build
+$ cmake ../work
+$ make
+$ cd ..
+```
 
-***
+If the project builds without errors the executable should be located in the `build/bin/` directory and can be run with:
+```sh
+$ ./build/bin/base [args...]
+```
 
-# Editing this README
+#### Eclipse
+Setting up for [Eclipse](https://eclipse.org/) is a little more complicated. Navigate to the build folder and run `cmake` for Eclipse.
+```sh
+$ cd build
+$ cmake  -G "Eclipse  CDT4 - Unix  Makefiles" ../work
+```
+Start Eclipse and go to `File > Import > Existing Projects into Workspace`, browse to and select the `build/` directory as the project. Make sure  the  box `Copy  Projects into Workspace` is unchecked. Once you've imported the project, and are unable run it, do the following:
+ - Go to `Run > Run  Configurations`.  On the left side, select C/C++  Application, then in the `Main` tab, make sure your C/C++ Application field contains `./bin/base` and that `Enable auto build` is checked.
+ - On your project, `[right click] > Run As > C/C++  Application`.  This should setup the default way to start the program, so you can simply run the project anytime after that.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+If  you  need  to  run  with  arguments  (and  you  will  with  some  projects)  go  to `Run > Run Configurations > Arguments` and enter your arguments there.  For example: `./work/res/assets/teapot.obj `
 
-## Suggestions for a good README
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
-## Name
-Choose a self-explaining name for your project.
+## Windows
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+#### Visual Studio
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+This project requires at least Visual Studio 2017. You can get the latest, [Visual Studio Community 2017](https://www.visualstudio.com/downloads/), for free from Microsoft.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+| Product |  XX  |
+|:-------:|:----:|
+| Visual Studio 2017 | 15 |
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Run the `cmake` command for Visual Studio with the appropriate version number (XX).
+```sh
+> cmake -G "Visual Studio XX" ..\work
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Or if you are building for 64-bit systems.
+```sh
+> cmake -G "Visual Studio XX Win64" ..\work
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+After opening the solution (`.sln`) you will need to set some additional variables before running.
+ - `Solution Explorer > base > [right click] > Set as StartUp Project`
+ - `Solution Explorer > base > [right click] > Properties > Configuration Properties > Debugging`
+ -- Select `All Configurations` from the configuration drop-down
+ -- Set `Working Directory` to `(SolutionDir)../work`
+ -- Set `Command Arguments` to whatever is required by your program
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## OSX
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+#### XCode
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+[Xcode](https://developer.apple.com/xcode/) is an IDE that offers a little more than simple text editing. The setup again is very similar to Eclipse.
+```sh
+$ cd build
+$ cmake -G "Xcode" ../work
+$ cd ..
+```
 
-## License
-For open source projects, say how it is licensed.
+Once you're setup, you can build your project with Xcode, but have to execute your program with the terminal (making sure you are in the root directory).
+```sh
+$ ./build/bin/base [args..]
+```
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+
+
+# CGRA Library
+
+In addition to the math library and other external libraries, this project provides some simple classes and functions (in the `cgra` namespace) to get started with a graphics application. Further description and documentation can be found in the respective headers.
+
+| File | Description |
+|:----:|:------------|
+| `cgra_geometry.hpp` | Utility functions for drawing basic geometry like spheres |
+| `cgra_gui.hpp` | Provides methods for setting up and rendering ImGui  |
+| `cgra_image.hpp` | An image class that can loaded from and saved to a file |
+| `cgra_mesh.hpp` | Mesh builder class for simple position/normal/uvs meshes |
+| `cgra_shader.hpp` | Shader builder class for compiling shaders from files or strings |
+| `cgra_wavefront.hpp` | Minimum viable wavefront asset loader function that returns a `mesh_builder` |
+
+In particular, the `rgba_image`, `shader_builder`, and `mesh_builder` classes are designed to hold data on the CPU and provide a way to upload this data to OpenGL. They are not responsible for deallocating these objects.
