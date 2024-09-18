@@ -12,6 +12,10 @@ SET(sources
 	
 	"opengl.hpp"
 
+	"ParticleEmitter.cpp"
+	"ParticleEmitter.hpp"
+
+
 	"main.cpp"
 
 	"CMakeLists.txt"

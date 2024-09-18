@@ -44,11 +44,17 @@ Application::Application(GLFWwindow *window) : m_window(window) {
 	m_model.shader = shader;
 	m_model.mesh = load_wavefront_data(CGRA_SRCDIR + std::string("/res//assets//teapot.obj")).build();
 	m_model.color = vec3(1, 0, 0);
+
+	pe.InitParticleSystem(vec3(0,0,0));
 }
 
 
 void Application::render() {
 	
+	chrono::time_point<chrono::steady_clock> now = chrono::steady_clock::now();
+	double time_delta = (now - m_current_time) / 1.0s; // in seconds
+	m_current_time = now;
+
 	// retrieve the window hieght
 	int width, height;
 	glfwGetFramebufferSize(m_window, &width, &height); 
@@ -78,9 +84,13 @@ void Application::render() {
 	if (m_show_axis) drawAxis(view, proj);
 	glPolygonMode(GL_FRONT_AND_BACK, (m_showWireframe) ? GL_LINE : GL_FILL);
 
+	if (!m_pause){
+		pe.draw(time_delta, view, proj);
+	}
+
 
 	// draw the model
-	m_model.draw(view, proj);
+	// m_model.draw(view, proj);
 }
 
 

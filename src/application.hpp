@@ -9,6 +9,9 @@
 #include "opengl.hpp"
 #include "cgra/cgra_mesh.hpp"
 
+#include "ParticleEmitter.hpp"
+
+#include <chrono>
 
 // Basic model that holds the shader, mesh and transform for drawing.
 // Can be copied and modified for adding in extra information for drawing
@@ -48,6 +51,12 @@ private:
 
 	// geometry
 	basic_model m_model;
+
+	ParticleEmitter pe;
+
+	std::chrono::time_point<std::chrono::steady_clock> m_current_time;
+	float m_timescale = 1.0;
+	bool m_pause = false;
 
 public:
 	// setup
