@@ -20,7 +20,9 @@ private:
 
     unsigned int m_currVB = 0;
     unsigned int m_currTFB = 0;
-    GLuint vao;
+    GLuint updateVao;
+    GLuint renderVao;
+
     GLuint m_particleBuffer[2];
     GLuint m_transformFeedback[2];
     // PSUpdateTechnique m_updateTechnique;
