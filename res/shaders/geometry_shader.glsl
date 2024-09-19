@@ -16,28 +16,50 @@ out vec3 velocity1;
 out float age1;
 
 uniform float delta;
-uniform float lifeTime = 1;
+// uniform float lifeTime = 1;
 
 void main(){
-
     float age = age0[0] + delta;
     // if(type0[0] == 1){
-        // if(age >= lifeTime){
-            type1 = 2;
-            position1 = position0[0];
-            velocity1 = vec3(0, 1, age0[0]);
-            age1 = 0.0;
-            EmitVertex();
-            EndPrimitive();
-            age = 0;
-        // }
+    //     type1 = type0[0];
+    //     position1 = position0[0];
+    //     velocity1 = velocity0[0];
+    //     age1 = age0[0];
+    //     EmitVertex();
+    //     EndPrimitive();
+    // }
+    // if(type0[0] == 1){
+    //     // if(age >= lifeTime){
+    //         type1 = 2;
+    //         position1 = vec3(1, 1, age);
+    //         velocity1 = vec3(0, 1, age0[0]);
+    //         age1 = 0.0;
+    //         EmitVertex();
+    //         EndPrimitive();
+    //         age = 0;
+    // }
+        type1 = type0[0];
+        position1 = position0[0];
+        velocity1 = velocity0[0];
+        age1 = 2;
+        EmitVertex();
+        EndPrimitive();
+
+    // }
+    // else{
+
+    //     if(type0[0] == 2){
+    //         if(age < lifeTime){
+    //             type1 = 2;
+    //             position1 = position0[0] + (velocity0[0] * delta);
+    //             velocity1 = velocity0[0];
+    //             age1 = age;
+    //             EmitVertex();
+    //             EndPrimitive();
+    //         }
+    //     }
     // }
 
-    type1 = 1;
-    position1 = position0[0] + velocity0[0];
-    velocity1 = velocity0[0];
-    age1 = age;
-    EmitVertex();
-    EndPrimitive();
+
 
 } 
