@@ -50,10 +50,8 @@ Application::Application(GLFWwindow *window) : m_window(window) {
     m_model.color = vec3(1, 0, 0);
 
     // NOTE: Temporary testing
-
-    Asteroid *asteroid = new Asteroid();
-
-    delete asteroid;
+    testAsteroid = make_shared<Asteroid>(
+        shader, std::chrono::system_clock::now().time_since_epoch().count());
 }
 
 void Application::render() {
@@ -90,7 +88,9 @@ void Application::render() {
     glPolygonMode(GL_FRONT_AND_BACK, (m_showWireframe) ? GL_LINE : GL_FILL);
 
     // draw the model
-    m_model.draw(view, proj);
+    // m_model.draw(view, proj);
+
+    testAsteroid->draw(view, proj);
 }
 
 void Application::renderGUI() {
