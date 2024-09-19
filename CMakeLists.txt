@@ -60,6 +60,7 @@ endif()
 
 add_subdirectory("${PROJECT_SOURCE_DIR}/ext/glfw")
 include_directories("${PROJECT_SOURCE_DIR}/ext/glfw/include")
+include_directories("${PROJECT_SOURCE_DIR}/ext/perlin-noise")
 add_subdirectory("${PROJECT_SOURCE_DIR}/ext/glew-1.10.0")
 add_subdirectory("${PROJECT_SOURCE_DIR}/ext/stb")
 add_subdirectory("${PROJECT_SOURCE_DIR}/ext/imgui")
