@@ -26,11 +26,20 @@ using namespace glm;
 class Asteroid {
   public:
     Asteroid(GLuint shader, const siv::PerlinNoise::seed_type seed);
-    void draw(const glm::mat4 &view, const glm::mat4 proj);
+    const void draw(const glm::mat4 &view, const glm::mat4 proj);
 
   private:
     cgra::gl_mesh mesh;
     glm::mat4 modelTransform;
     GLuint shader;
     glm::vec3 color;
+
+    // Returns a vec3 containing the offsets from the origin to the vertex
+    // withing the given edge number
+    const vec3 marching_cubes_edge(int edge_num);
+
+    // Returns a vector of the vertices of the triangles that make up a single
+    // case for marching cubes. The returned array will list the verts in
+    // triplets, capped off with a -1.
+    const int *marching_cubes_tris(int case_num);
 };
