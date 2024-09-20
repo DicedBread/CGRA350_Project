@@ -31,6 +31,7 @@ using namespace glm;
 
 Asteroid::Asteroid(GLuint shader, const siv::PerlinNoise::seed_type seed) {
     const static double MC_CUTOFF = 0.5;
+    const static double MC_EDGE_LENGTH = 1.0;
 
     this->shader = shader;
 
@@ -46,6 +47,12 @@ Asteroid::Asteroid(GLuint shader, const siv::PerlinNoise::seed_type seed) {
         width_of_points,
         std::vector<std::vector<double>>(
             width_of_points, std::vector<double>(width_of_points, 0.0)));
+
+    std::vector<std::vector<std::vector<vec3>>> point_cloud_grads(
+        width_of_points,
+        std::vector<std::vector<vec3>>(
+            width_of_points,
+            std::vector<vec3>(width_of_points, vec3(0, 0, 0))));
 
     for (int i = 0; i < width_of_points; i++) {
         for (int j = 0; j < width_of_points; j++) {
@@ -63,6 +70,34 @@ Asteroid::Asteroid(GLuint shader, const siv::PerlinNoise::seed_type seed) {
                 d *= -pow(2 * dist / width_of_points, 2) + 1;
 
                 point_cloud[i][j][k] = d;
+            }
+        }
+    }
+
+    // -- Calculate gradients --
+
+    for (int i = 0; i < width_of_points; i++) {
+        for (int j = 0; j < width_of_points; j++) {
+            for (int k = 0; k < width_of_points; k++) {
+                // The edge case, literally.
+                if (i == 0 || i == width_of_points - 1 || j == 0 ||
+                    j == width_of_points - 1 || k == 0 ||
+                    k == width_of_points - 1) {
+                    point_cloud_grads[i][j][k] = vec3(0, 0, 0);
+                    continue;
+                }
+
+                float Gx =
+                    (point_cloud[i + 1][j][k] - point_cloud[i - 1][j][k]) / 2 *
+                    MC_EDGE_LENGTH;
+                float Gy =
+                    (point_cloud[i][j + 1][k] - point_cloud[i][j - 1][k]) / 2 *
+                    MC_EDGE_LENGTH;
+                float Gz =
+                    (point_cloud[i][j][k + 1] - point_cloud[i][j][k - 1]) / 2 *
+                    MC_EDGE_LENGTH;
+
+                point_cloud_grads[i][j][k] = vec3(Gx, Gy, Gz);
             }
         }
     }
@@ -102,33 +137,47 @@ Asteroid::Asteroid(GLuint shader, const siv::PerlinNoise::seed_type seed) {
                               (points[7] > MC_CUTOFF ? (1 << 7) : 0);
 
                 vec3 position =
-                    vec3(x - width_of_points / 2, y - width_of_points / 2,
-                         z - width_of_points / 2);
+                    (float)MC_EDGE_LENGTH * vec3(x - width_of_points / 2,
+                                                 y - width_of_points / 2,
+                                                 z - width_of_points / 2);
 
                 const int *tris = marching_cubes_tris(mc_case);
                 int tri_index = 0;
 
                 while (tris[tri_index] != -1) {
-                    vec3 vert0 = this->marching_cubes_edge(tris[tri_index + 0]);
-                    vec3 vert1 = this->marching_cubes_edge(tris[tri_index + 1]);
-                    vec3 vert2 = this->marching_cubes_edge(tris[tri_index + 2]);
+                    vec3 vert0 = this->marching_cubes_edge(tris[tri_index + 0],
+                                                           points, MC_CUTOFF);
+                    vec3 vert1 = this->marching_cubes_edge(tris[tri_index + 1],
+                                                           points, MC_CUTOFF);
+                    vec3 vert2 = this->marching_cubes_edge(tris[tri_index + 2],
+                                                           points, MC_CUTOFF);
 
-                    // NOTE: Currently just the normal of the triangle face,
-                    // perhaps this could improved?
-                    vec3 norm = glm::normalize(
-                        glm::cross(vert1 - vert0, vert2 - vert0));
+                    // Norm of each edge is the average of the gradients of the
+                    // points either side of the edge.
+                    vec3 norm0 = normalize(marching_cubes_grad(
+                        x, y, z, tris[tri_index + 0], points, MC_CUTOFF,
+                        point_cloud_grads));
+                    vec3 norm1 = normalize(marching_cubes_grad(
+                        x, y, z, tris[tri_index + 1], points, MC_CUTOFF,
+                        point_cloud_grads));
+                    vec3 norm2 = normalize(marching_cubes_grad(
+                        x, y, z, tris[tri_index + 2], points, MC_CUTOFF,
+                        point_cloud_grads));
 
                     mb.push_index(vert_index++);
                     mb.push_vertex(
-                        mesh_vertex{position + vert0, norm, vec2(0, 0)});
+                        mesh_vertex{position + (float)MC_EDGE_LENGTH * vert0,
+                                    norm0, vec2(0, 0)});
 
                     mb.push_index(vert_index++);
                     mb.push_vertex(
-                        mesh_vertex{position + vert1, norm, vec2(0, 0)});
+                        mesh_vertex{position + (float)MC_EDGE_LENGTH * vert1,
+                                    norm1, vec2(0, 0)});
 
                     mb.push_index(vert_index++);
                     mb.push_vertex(
-                        mesh_vertex{position + vert2, norm, vec2(0, 0)});
+                        mesh_vertex{position + (float)MC_EDGE_LENGTH * vert2,
+                                    norm2, vec2(0, 0)});
 
                     tri_index += 3;
                 }
@@ -158,37 +207,39 @@ const void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj) {
     mesh.draw(); // draw
 }
 
-const vec3 Asteroid::marching_cubes_edge(int edge_num) {
+const vec3 Asteroid::marching_cubes_edge(const int edge_num,
+                                         const double *points,
+                                         const double cutoff) {
     switch (edge_num) {
     default:
     case 0:
-        return vec3(0.5, 0, 0);
+        return vec3(inverse_lerp(points[0], points[1], cutoff), 0, 0);
     case 1:
-        return vec3(1, 0.5, 0);
+        return vec3(1, inverse_lerp(points[1], points[3], cutoff), 0);
     case 2:
-        return vec3(0.5, 1, 0);
+        return vec3(inverse_lerp(points[2], points[3], cutoff), 1, 0);
     case 3:
-        return vec3(0, 0.5, 0);
+        return vec3(0, inverse_lerp(points[0], points[2], cutoff), 0);
     case 4:
-        return vec3(0.5, 0, 1);
+        return vec3(inverse_lerp(points[4], points[5], cutoff), 0, 1);
     case 5:
-        return vec3(1, 0.5, 1);
+        return vec3(1, inverse_lerp(points[5], points[7], cutoff), 1);
     case 6:
-        return vec3(0.5, 1, 1);
+        return vec3(inverse_lerp(points[6], points[7], cutoff), 1, 1);
     case 7:
-        return vec3(0, 0.5, 1);
+        return vec3(0, inverse_lerp(points[4], points[6], cutoff), 1);
     case 8:
-        return vec3(0, 0, 0.5);
+        return vec3(0, 0, inverse_lerp(points[0], points[4], cutoff));
     case 9:
-        return vec3(1, 0, 0.5);
+        return vec3(1, 0, inverse_lerp(points[1], points[5], cutoff));
     case 10:
-        return vec3(1, 1, 0.5);
+        return vec3(1, 1, inverse_lerp(points[3], points[7], cutoff));
     case 11:
-        return vec3(0, 1, 0.5);
+        return vec3(0, 1, inverse_lerp(points[2], points[6], cutoff));
     }
 }
 
-const int *Asteroid::marching_cubes_tris(int case_num) {
+const int *Asteroid::marching_cubes_tris(const int case_num) {
     /*     +---2---+
      *    /|      /|
      *  11 3    10 1
@@ -714,5 +765,56 @@ const int *Asteroid::marching_cubes_tris(int case_num) {
         return new int[]{8, 3, 0, -1};
     case 255:
         return new int[]{-1};
+    }
+}
+
+const vec3
+Asteroid::marching_cubes_grad(const int i, const int j, const int k,
+                              const int edge_num, const double *points,
+                              const double cutoff,
+                              const vector<vector<vector<vec3>>> &grads) {
+    float t = 0;
+
+    switch (edge_num) {
+    default:
+    case 0:
+        t = inverse_lerp(points[0], points[1], cutoff);
+        return (1 - t) * grads[i][j][k] + t * grads[i + 1][j][k];
+    case 1:
+        t = inverse_lerp(points[1], points[3], cutoff);
+        return (1 - t) * grads[i + 1][j][k] + t * grads[i + 1][j + 1][k];
+    case 2:
+        t = inverse_lerp(points[2], points[3], cutoff);
+        return (1 - t) * grads[i][j + 1][k] + t * grads[i + 1][j + 1][k];
+    case 3:
+        t = inverse_lerp(points[0], points[2], cutoff);
+        return (1 - t) * grads[i][j][k] + t * grads[i][j + 1][k];
+    case 4:
+        t = inverse_lerp(points[4], points[5], cutoff);
+        return (1 - t) * grads[i][j][k + 1] + t * grads[i + 1][j][k + 1];
+    case 5:
+        t = inverse_lerp(points[5], points[7], cutoff);
+        return (1 - t) * grads[i + 1][j][k + 1] +
+               t * grads[i + 1][j + 1][k + 1];
+    case 6:
+        t = inverse_lerp(points[6], points[7], cutoff);
+        return (1 - t) * grads[i][j + 1][k + 1] +
+               t * grads[i + 1][j + 1][k + 1];
+    case 7:
+        t = inverse_lerp(points[4], points[6], cutoff);
+        return (1 - t) * grads[i][j][k + 1] + t * grads[i][j + 1][k + 1];
+    case 8:
+        t = inverse_lerp(points[0], points[4], cutoff);
+        return (1 - t) * grads[i][j][k] + t * grads[i][j][k + 1];
+    case 9:
+        t = inverse_lerp(points[1], points[5], cutoff);
+        return (1 - t) * grads[i + 1][j][k] + t * grads[i + 1][j][k + 1];
+    case 10:
+        t = inverse_lerp(points[3], points[7], cutoff);
+        return (1 - t) * grads[i + 1][j + 1][k] +
+               t * grads[i + 1][j + 1][k + 1];
+    case 11:
+        t = inverse_lerp(points[2], points[6], cutoff);
+        return (1 - t) * grads[i][j + 1][k] + t * grads[i][j + 1][k + 1];
     }
 }
