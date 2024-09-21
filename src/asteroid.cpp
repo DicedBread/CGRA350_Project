@@ -74,6 +74,33 @@ Asteroid::Asteroid(GLuint shader, const siv::PerlinNoise::seed_type seed) {
         }
     }
 
+    // -- Calculate the point cloud center --
+
+    // This calculated center will be used when generating the mesh.
+    // Is is the average position of all points avove the cutoff.
+    vec3 center = vec3(0, 0, 0);
+    int num_points = 0;
+
+    for (int i = 0; i < width_of_points; i++) {
+        for (int j = 0; j < width_of_points; j++) {
+            for (int k = 0; k < width_of_points; k++) {
+                if (point_cloud[i][j][k] > MC_CUTOFF) {
+                    double x =
+                        (i - (double)width_of_points / 2) * MC_EDGE_LENGTH;
+                    double y =
+                        (j - (double)width_of_points / 2) * MC_EDGE_LENGTH;
+                    double z =
+                        (k - (double)width_of_points / 2) * MC_EDGE_LENGTH;
+
+                    center += vec3(x, y, z);
+                    num_points++;
+                }
+            }
+        }
+    }
+
+    center /= (num_points > 0 ? num_points : 1);
+
     // -- Calculate gradients --
 
     for (int i = 0; i < width_of_points; i++) {
@@ -139,7 +166,8 @@ Asteroid::Asteroid(GLuint shader, const siv::PerlinNoise::seed_type seed) {
                 vec3 position =
                     (float)MC_EDGE_LENGTH * vec3(x - width_of_points / 2,
                                                  y - width_of_points / 2,
-                                                 z - width_of_points / 2);
+                                                 z - width_of_points / 2) -
+                    center;
 
                 const int *tris = marching_cubes_tris(mc_case);
                 int tri_index = 0;
