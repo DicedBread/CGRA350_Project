@@ -19,7 +19,7 @@ private:
 
 
     unsigned int m_currVB = 0;
-    unsigned int m_currTFB = 0;
+    unsigned int m_currTFB = 1;
     GLuint updateVao;
     GLuint renderVao;
 

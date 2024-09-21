@@ -45,7 +45,8 @@ Application::Application(GLFWwindow *window) : m_window(window) {
 	m_model.mesh = load_wavefront_data(CGRA_SRCDIR + std::string("/res//assets//teapot.obj")).build();
 	m_model.color = vec3(1, 0, 0);
 
-	pe.InitParticleSystem(vec3(0,0,0));
+	// pe.InitParticleSystem(vec3(0,0,0));
+	testGeo.init();
 }
 
 
@@ -85,7 +86,8 @@ void Application::render() {
 	glPolygonMode(GL_FRONT_AND_BACK, (m_showWireframe) ? GL_LINE : GL_FILL);
 
 	if (!m_pause){
-		pe.draw(time_delta, view, proj);
+		// pe.draw(time_delta, view, proj);
+		testGeo.update();
 	}
 
 

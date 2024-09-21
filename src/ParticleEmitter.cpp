@@ -15,10 +15,10 @@ using namespace cgra;
 using namespace std;
 
 struct Particle{
-    GLfloat Type;
+    // GLfloat Type;
     glm::vec3 Pos; 
-    glm::vec3 Vel; 
-    GLfloat LifetimeMillis;
+    // glm::vec3 Vel; 
+    // GLfloat LifetimeMillis;
 }; 
 
 
@@ -41,33 +41,37 @@ bool ParticleEmitter::InitParticleSystem(const vec3 &pos)
     mShader = b.build();
 
     Particle Particles[20];
-    Particles[0].Type = 1;
-    Particles[0].Pos = vec3(20.0f, 0.0f, 0.0f);
-    Particles[0].Vel = vec3(0.0f, 0.0f, 0.0f);
-    Particles[0].LifetimeMillis = 0.0f;
+    for(int i =0; i < 20; i++){
+        Particles[i].Pos = vec3(0,0,0);
+    }
 
-    Particles[1].Type = 8;
-    Particles[1].Pos = vec3(0.0f, 0.0f, 0.0f);
-    Particles[1].Vel = vec3(0.0f, 0.0f, 0.0f);
-    Particles[1].LifetimeMillis = 0.0f;
+    // Particles[0].Type = 1;
+    Particles[0].Pos = vec3(2.0f, 1.0f, 1.0f);
+    // Particles[0].Vel = vec3(0.0f, 0.0f, 0.0f);
+    // Particles[0].LifetimeMillis = 0.0f;
+
+    // Particles[1].Type = 8;
+    Particles[1].Pos = vec3(2.0f, 2.0f, 2.0f);
+    // Particles[1].Vel = vec3(0.0f, 0.0f, 0.0f);
+    // Particles[1].LifetimeMillis = 0.0f;
 
     glGenVertexArrays(1, &updateVao);
     glBindVertexArray(updateVao);
     glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Type))); // type
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Pos))); // position
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Vel))); // velocity
-    glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, LifetimeMillis))); // lifetime 
+    // glEnableVertexAttribArray(1);
+    // glEnableVertexAttribArray(2);
+    // glEnableVertexAttribArray(3);
+    // glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Type))); // type
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Pos))); // position
+    // glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Vel))); // velocity
+    // glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, LifetimeMillis))); // lifetime 
     glBindVertexArray(0);
 
-    glGenVertexArrays(1, &renderVao);
-    glBindVertexArray(renderVao);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Pos))); // position
-    glBindVertexArray(0);
+    // glGenVertexArrays(1, &renderVao);
+    // glBindVertexArray(renderVao);
+    // glEnableVertexAttribArray(0);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Pos))); // position
+    // glBindVertexArray(0);
 
 
     glGenTransformFeedbacks(2, m_transformFeedback);
@@ -79,12 +83,12 @@ bool ParticleEmitter::InitParticleSystem(const vec3 &pos)
         glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_particleBuffer[i]);
     }
 
-    const GLchar* Varyings[4];
-    Varyings[0] = "type1";
-    Varyings[1] = "position1";
-    Varyings[2] = "velocity1";
-    Varyings[3] = "age1";
-    glTransformFeedbackVaryings(geoShader, 4, Varyings, GL_INTERLEAVED_ATTRIBS);
+    const GLchar* Varyings[1];
+    // Varyings[0] = "type1";
+    Varyings[0] = "position1";
+    // Varyings[2] = "velocity1";
+    // Varyings[3] = "age1";
+    glTransformFeedbackVaryings(geoShader, 1, Varyings, GL_INTERLEAVED_ATTRIBS);
     // cout << "huh" << endl;
     glLinkProgram(geoShader);
 
@@ -95,10 +99,10 @@ bool ParticleEmitter::InitParticleSystem(const vec3 &pos)
 
 void ParticleEmitter::draw(double delta, const mat4 &view, const mat4 proj)
 {
-    m_time += delta;
+    // m_time += delta;
 
     updateParticles(delta);
-    render(view, proj);
+    // render(view, proj);
 
     m_currVB = m_currTFB;
     m_currTFB = (m_currTFB + 1) & 0x1;
@@ -107,41 +111,98 @@ void ParticleEmitter::draw(double delta, const mat4 &view, const mat4 proj)
 void ParticleEmitter::updateParticles(double delta)
 {
     glEnable(GL_RASTERIZER_DISCARD); 
+
+
+    // debug
+    Particle ret[3];
+    Particle retOther[3];
+    int readLen = sizeof(ret) / sizeof(ret[0]);
+
+    cout << "bound tfbuff index = " << m_currTFB << endl;
+    cout << "bound pbuff index = " << m_currVB << endl;
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currTFB]);  
+    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * readLen, ret);
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currVB]);  
+    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * readLen, retOther);
+    for(int i = 0; i < readLen; i++){
+        cout << i << ": ";
+        // cout << ret[i].Type << " ";
+        // cout << ret[i].LifetimeMillis << " ";
+        cout << ret[i].Pos.x << ", " << ret[i].Pos.y << ", " << ret[i].Pos.z;
+        cout << " -> " << retOther[i].Pos.x << ", " << retOther[i].Pos.y << ", " << retOther[i].Pos.z;
+
+        cout << endl;
+    } // man idk i think the draw arrays call be funny or something
+    cout << endl;
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currVB]); 
+    glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Particle) * readLen, ret);
+    glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currTFB]); 
+    glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Particle) * readLen, retOther);
+    cout << "buffer: " << endl;
+    for(int i = 0; i < readLen; i++){
+        cout << i << ": ";
+        // cout << ret[i].Type << " ";
+        // cout << ret[i].LifetimeMillis << " ";
+        cout << ret[i].Pos.x << ", " << ret[i].Pos.y << ", " << ret[i].Pos.z;
+        cout << " -> " << retOther[i].Pos.x << ", " << retOther[i].Pos.y << ", " << retOther[i].Pos.z;
+        cout << endl;
+    } 
+    cout << endl;
+
+    // actual thing >
+
     glUseProgram(geoShader);
-    glUniform1f(glGetUniformLocation(geoShader, "delta"), (GLfloat) delta);
+    // glUniform1f(glGetUniformLocation(geoShader, "delta"), (GLfloat) delta);
 
     glBindVertexArray(updateVao);
     glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currVB]); 
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currTFB]);  
     glBeginTransformFeedback(GL_POINTS);
     if(m_isFirst){
-        glDrawArrays(GL_POINTS, 1, 1); 
+        glDrawArrays(GL_POINTS, 0, 1); 
         m_isFirst = false;
     }else{
         glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currVB]);
     }
+    glEndTransformFeedback();
 
-    Particle ret[20];
-    for(int i = 0; i < 20; i++){
-        ret[i].Type = 0;
-        ret[i].Pos = vec3(0,0,0);
-        ret[i].Vel = vec3(0,0,0);
-        ret[i].LifetimeMillis = 0;
-    }
+
+    // debug
 
     cout << "bound tfbuff index = " << m_currTFB << endl;
     cout << "bound pbuff index = " << m_currVB << endl;
-    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * 20, ret);
-    for(int i = 0; i < 20; i++){
+    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * readLen, ret);
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currVB]);  
+    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * readLen, retOther);
+    for(int i = 0; i < readLen; i++){
         cout << i << ": ";
-        cout << ret[i].Type << " ";
-        cout << ret[i].LifetimeMillis << " ";
+        // cout << ret[i].Type << " ";
+        // cout << ret[i].LifetimeMillis << " ";
         cout << ret[i].Pos.x << ", " << ret[i].Pos.y << ", " << ret[i].Pos.z;
+        cout << " -> " << retOther[i].Pos.x << ", " << retOther[i].Pos.y << ", " << retOther[i].Pos.z;
+
         cout << endl;
     } // man idk i think the draw arrays call be funny or something
     cout << endl;
 
-    glEndTransformFeedback();
+
+    glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Particle) * readLen, ret);
+    glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currTFB]); 
+    glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Particle) * readLen, retOther);
+    cout << "buffer: " << endl;
+    for(int i = 0; i < readLen; i++){
+        cout << i << ": ";
+        // cout << ret[i].Type << " ";
+        // cout << ret[i].LifetimeMillis << " ";
+        cout << ret[i].Pos.x << ", " << ret[i].Pos.y << ", " << ret[i].Pos.z;
+        cout << " -> " << retOther[i].Pos.x << ", " << retOther[i].Pos.y << ", " << retOther[i].Pos.z;
+        cout << endl;
+    } 
+    cout << "Update end"  << endl << endl << endl;
+   
+   
+
     glBindVertexArray(0);
     glDisable(GL_RASTERIZER_DISCARD);    
 }

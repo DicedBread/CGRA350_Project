@@ -14,7 +14,8 @@ SET(sources
 
 	"ParticleEmitter.cpp"
 	"ParticleEmitter.hpp"
-
+	"goTest.cpp"
+	"goTest.hpp"
 
 	"main.cpp"
 

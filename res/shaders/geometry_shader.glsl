@@ -5,21 +5,21 @@ layout(points) in;
 layout(points) out;
 layout(max_vertices = 20) out;
 
-in float type0[];
+// in float type0[];
 in vec3 position0[];
-in vec3 velocity0[];
-in float age0[];
+// in vec3 velocity0[];
+// in float age0[];
 
-out float type1;
+// out float type1;
 out vec3 position1;
-out vec3 velocity1;
-out float age1;
+// out vec3 velocity1;
+// out float age1;
 
-uniform float delta;
+// uniform float delta;
 // uniform float lifeTime = 1;
 
 void main(){
-    float age = age0[0] + delta;
+    // float age = age0[0] + delta;
     // if(type0[0] == 1){
     //     type1 = type0[0];
     //     position1 = position0[0];
@@ -38,10 +38,10 @@ void main(){
     //         EndPrimitive();
     //         age = 0;
     // }
-        type1 = type0[0];
+        // type1 = type0[0];
         position1 = position0[0];
-        velocity1 = velocity0[0];
-        age1 = 2;
+        // velocity1 = velocity0[0];
+        // age1 = 2;
         EmitVertex();
         EndPrimitive();
 
