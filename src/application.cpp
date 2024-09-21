@@ -51,7 +51,7 @@ Application::Application(GLFWwindow *window) : m_window(window) {
 
     // NOTE: Temporary testing
     testAsteroid = make_shared<Asteroid>(
-        shader, std::chrono::system_clock::now().time_since_epoch().count());
+        std::chrono::system_clock::now().time_since_epoch().count());
 }
 
 void Application::render() {

@@ -21,6 +21,7 @@
 
 // perlin noise
 #include "PerlinNoise.hpp"
+#include "opengl.hpp"
 
 // header
 #include "asteroid.hpp"
@@ -29,11 +30,11 @@ using namespace std;
 using namespace cgra;
 using namespace glm;
 
-Asteroid::Asteroid(GLuint shader, const siv::PerlinNoise::seed_type seed) {
+Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
     const static double MC_CUTOFF = 0.5;
     const static double MC_EDGE_LENGTH = 1.0;
 
-    this->shader = shader;
+    this->load_shader();
 
     mesh_builder mb;
 
@@ -222,7 +223,7 @@ Asteroid::Asteroid(GLuint shader, const siv::PerlinNoise::seed_type seed) {
     this->modelTransform = glm::scale(mat4(1.0), vec3(0.1));
 }
 
-const void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj) {
+void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj) {
     mat4 modelview = view * modelTransform;
 
     glUseProgram(shader); // load shader and variables
@@ -235,9 +236,8 @@ const void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj) {
     mesh.draw(); // draw
 }
 
-const vec3 Asteroid::marching_cubes_edge(const int edge_num,
-                                         const double *points,
-                                         const double cutoff) {
+vec3 Asteroid::marching_cubes_edge(const int edge_num, const double *points,
+                                   const double cutoff) {
     switch (edge_num) {
     default:
     case 0:
@@ -267,7 +267,7 @@ const vec3 Asteroid::marching_cubes_edge(const int edge_num,
     }
 }
 
-const int *Asteroid::marching_cubes_tris(const int case_num) {
+int *Asteroid::marching_cubes_tris(const int case_num) {
     /*     +---2---+
      *    /|      /|
      *  11 3    10 1
@@ -796,11 +796,10 @@ const int *Asteroid::marching_cubes_tris(const int case_num) {
     }
 }
 
-const vec3
-Asteroid::marching_cubes_grad(const int i, const int j, const int k,
-                              const int edge_num, const double *points,
-                              const double cutoff,
-                              const vector<vector<vector<vec3>>> &grads) {
+vec3 Asteroid::marching_cubes_grad(const int i, const int j, const int k,
+                                   const int edge_num, const double *points,
+                                   const double cutoff,
+                                   const vector<vector<vector<vec3>>> &grads) {
     float t = 0;
 
     switch (edge_num) {
@@ -845,4 +844,21 @@ Asteroid::marching_cubes_grad(const int i, const int j, const int k,
         t = inverse_lerp(points[2], points[6], cutoff);
         return (1 - t) * grads[i][j + 1][k] + t * grads[i][j + 1][k + 1];
     }
+}
+
+GLuint Asteroid::shader = 0;
+void Asteroid::load_shader() {
+    if (Asteroid::shader != 0) {
+        // Shader already loaded
+        return;
+    }
+
+    shader_builder sb;
+    sb.set_shader(GL_VERTEX_SHADER,
+                  CGRA_SRCDIR + std::string("//res//shaders//color_vert.glsl"));
+    sb.set_shader(GL_FRAGMENT_SHADER,
+                  CGRA_SRCDIR + std::string("//res//shaders//color_frag.glsl"));
+    GLuint shader = sb.build();
+
+    Asteroid::shader = shader;
 }

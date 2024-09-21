@@ -25,35 +25,40 @@ using namespace glm;
 
 class Asteroid {
   public:
-    Asteroid(GLuint shader, const siv::PerlinNoise::seed_type seed);
-    const void draw(const glm::mat4 &view, const glm::mat4 proj);
+    Asteroid(const siv::PerlinNoise::seed_type seed);
+    void draw(const glm::mat4 &view, const glm::mat4 proj);
 
   private:
     cgra::gl_mesh mesh;
     glm::mat4 modelTransform;
-    GLuint shader;
+    static GLuint shader;
     glm::vec3 color;
+
+    // Load the shader program, if it hasn't been loaded already.
+    // The shader program is stored in a static variable, so it is shared
+    // between all instances.
+    static void load_shader();
 
     // A helper function for finding when a the t value of when a linear
     // interpolation crosses a cutoff value.
-    const double inverse_lerp(const double a, const double b, const double x) {
+    double inverse_lerp(const double a, const double b, const double x) {
         return (a - x) / (a - b);
     }
 
     // Returns a vec3 containing the offsets from the origin to the vertex
     // withing the given edge number
-    const vec3 marching_cubes_edge(const int edge_num, const double *points,
-                                   const double cutoff);
+    vec3 marching_cubes_edge(const int edge_num, const double *points,
+                             const double cutoff);
 
     // Returns a vector of the vertices of the triangles that make up a single
     // case for marching cubes. The returned array will list the verts in
     // triplets, capped off with a -1.
-    const int *marching_cubes_tris(const int case_num);
+    int *marching_cubes_tris(const int case_num);
 
     // Returns the calculated normal of a vertex lying on the edge of a marching
     // cube for smooth shading.
-    const vec3 marching_cubes_grad(const int i, const int j, const int k,
-                                   const int edge_num, const double *points,
-                                   const double cutoff,
-                                   const vector<vector<vector<vec3>>> &grads);
+    vec3 marching_cubes_grad(const int i, const int j, const int k,
+                             const int edge_num, const double *points,
+                             const double cutoff,
+                             const vector<vector<vector<vec3>>> &grads);
 };
