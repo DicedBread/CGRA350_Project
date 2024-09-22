@@ -15,6 +15,8 @@
 class ParticleEmitter
 {
 private:
+    int maxEmitOutput = GL_MAX_GEOMETRY_OUTPUT_VERTICES; 
+
     bool m_isFirst;
     unsigned int m_currReadBuff = 0;
     unsigned int m_currWriteBuff = 1;
@@ -26,8 +28,12 @@ private:
 
     GLuint geoShader;
     GLuint renderShader;
+    
+    int maxParticles = 1000;
 
-    int m_time;
+    float emitTime = 1;
+    int emitCount = 1;
+    float particleLifeTime = 1;
 
     void initShaders();
 

@@ -28,7 +28,7 @@ void ParticleEmitter::InitParticleSystem(const vec3 &pos)
 {
     initShaders();
 
-    Particle data[20];
+    Particle data[1000];
     data[0].type = 1;
     data[0].pos = pos;
     data[0].vel = vec3(0,0,0);
@@ -89,8 +89,6 @@ void ParticleEmitter::initShaders(){
 
 void ParticleEmitter::draw(double delta, const mat4 &view, const mat4 proj)
 {
-    m_time += delta;
-
     updateParticles(delta);
     render(view, proj);
 
@@ -115,9 +113,9 @@ void ParticleEmitter::updateParticles(double delta)
     }
     glEndTransformFeedback();
 
-    // Particle ret[10];
+    // Particle ret[5];
     // glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(ret), ret);
-    // for(int i = 0; i < 10; i++){
+    // for(int i = 0; i < 5; i++){
     //     cout << i << ": ";
     //     cout << ret[i].type << " "; 
     //     cout << "(" << ret[i].pos.x << ", " << ret[i].pos.y << ", "<< ret[i].pos.z << ") ";
