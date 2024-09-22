@@ -46,7 +46,6 @@ Application::Application(GLFWwindow *window) : m_window(window) {
 	m_model.color = vec3(1, 0, 0);
 
 	pe.InitParticleSystem(vec3(0,0,0));
-	// testGeo.init();
 }
 
 
@@ -85,12 +84,9 @@ void Application::render() {
 	if (m_show_axis) drawAxis(view, proj);
 	glPolygonMode(GL_FRONT_AND_BACK, (m_showWireframe) ? GL_LINE : GL_FILL);
 
-	// if(testcount++ > 3) m_pause = true;
 	if (!m_pause){
 		pe.draw(time_delta, view, proj);
-		// testGeo.update();
 	}
-
 
 	// draw the model
 	// m_model.draw(view, proj);
