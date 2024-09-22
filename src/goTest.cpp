@@ -18,7 +18,8 @@ using namespace std;
 
 
 struct Particle{
-    GLint type;
+    GLfloat type;
+    vec3 pos;
 };
 
 goTest::goTest(){}
@@ -28,72 +29,87 @@ goTest::~goTest(){}
 void goTest::init(){
     shader_builder sb;
     sb.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//pv.glsl"));
-    // sb.set_shader(GL_GEOMETRY_SHADER, CGRA_SRCDIR + std::string("//res//shaders//testgeo.glsl"));
+    sb.set_shader(GL_GEOMETRY_SHADER, CGRA_SRCDIR + std::string("//res//shaders//testgeo.glsl"));
     geoShader = sb.build();
 
-    Particle Particles[10];
-
-    for(int i = 0; i < 10; i++){
-        Particles[i].type = 0;
-    }
-    Particles[0].type = 2;
-
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    glVertexAttribPointer(0, 1, GL_INT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, type)));
-    glBindVertexArray(0);
-
-    glGenTransformFeedbacks(1, &tfb);
-    glGenBuffers(1, &vbo);
-    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, tfb);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Particles), Particles, GL_DYNAMIC_DRAW);
-        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
-
-
-    const GLchar* varyings[1];
-    varyings[0] = "type0";
-    glTransformFeedbackVaryings(geoShader, 1, varyings, GL_INTERLEAVED_ATTRIBS);
+    const GLchar* varyings[2] = {"type1", "pos1"};
+    glTransformFeedbackVaryings(geoShader, 2, varyings, GL_INTERLEAVED_ATTRIBS);
     glLinkProgram(geoShader);
     glUseProgram(0);
+
+    Particle data[10];
+    for(int i = 0; i < 10; i++){
+        data[i].type = i;
+        data[i].pos = vec3(5, 6, 7);
+    }
+    data[0].type = 2;
+
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+    glGenBuffers(1, &vbo2);
+
+    glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glEnableVertexAttribArray(0);
+            glEnableVertexAttribArray(1);
+            glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, type)));
+            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, pos)));
+            glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_DYNAMIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    for(int i = 0; i < 10; i++){
+        data[i].type = 0;
+        data[i].pos = vec3(0, 0, 0);
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo2);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_DYNAMIC_DRAW);
+    // glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    glGenTransformFeedbacks(1, &tfb);
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, tfb);
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, vbo2);
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+
     cout << "init" << endl;
 }
 
 void goTest::update(){
     glEnable(GL_RASTERIZER_DISCARD);
 
-    
     glUseProgram(geoShader);
     glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, tfb);
-    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, vbo);
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, vbo2);
+
     cout << "list" <<endl;
     Particle ret[10];
-    int readLen = sizeof(ret) / sizeof(ret[0]);
-    glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Particle) * readLen, ret);
-    for(int i = 0; i < readLen; i++){
+    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(ret), ret);
+    for(int i = 0; i < 10; i++){
         cout << i << ": ";
-        cout << ret[i].type << endl;
+        cout << ret[i].type << " "; 
+        cout << ret[i].pos.x << ", " << ret[i].pos.y << ", "<< ret[i].pos.z;
+        cout << endl;
     }
     cout << endl;
 
     glBeginTransformFeedback(GL_POINTS);
     if(m_isFirst){
-        glDrawArrays(GL_POINTS, 0, 2);
+        glDrawArrays(GL_POINTS, 0, 5);
         m_isFirst = false;
     }else{
         glDrawTransformFeedback(GL_POINTS, tfb);
     }
     glEndTransformFeedback();
 
-
-    glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Particle) * readLen, ret);
-    for(int i = 0; i < readLen; i++){
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(ret), ret);
+    for(int i = 0; i < 10; i++){
         cout << i << ": ";
-        cout << ret[i].type << endl;
+        cout << ret[i].type << " "; 
+        cout << ret[i].pos.x << ", " << ret[i].pos.y << ", "<< ret[i].pos.z;
+        cout << endl;
     }
     cout << endl;
 

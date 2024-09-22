@@ -15,208 +15,130 @@ using namespace cgra;
 using namespace std;
 
 struct Particle{
-    // GLfloat Type;
-    glm::vec3 Pos; 
-    // glm::vec3 Vel; 
-    // GLfloat LifetimeMillis;
-}; 
-
+    GLfloat type;
+    glm::vec3 pos; 
+    glm::vec3 vel; 
+    GLfloat age;
+};
 
 ParticleEmitter::ParticleEmitter(){}
-
 ParticleEmitter::~ParticleEmitter(){}
 
-bool ParticleEmitter::InitParticleSystem(const vec3 &pos)
+void ParticleEmitter::InitParticleSystem(const vec3 &pos)
 {
-    shader_builder sb;
-    sb.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//part_vert.glsl"));
-    sb.set_shader(GL_GEOMETRY_SHADER, CGRA_SRCDIR + std::string("//res//shaders//geometry_shader.glsl"));
-    geoShader = sb.build();
+    initShaders();
 
+    Particle data[20];
+    data[0].type = 1;
+    data[0].pos = pos;
+    data[0].vel = vec3(0,0,0);
+    data[0].age = 0;
 
-
-    shader_builder b;
-    b.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//color_vert.glsl"));
-	b.set_shader(GL_FRAGMENT_SHADER, CGRA_SRCDIR + std::string("//res//shaders//color_frag.glsl"));
-    mShader = b.build();
-
-    Particle Particles[20];
-    for(int i =0; i < 20; i++){
-        Particles[i].Pos = vec3(0,0,0);
-    }
-
-    // Particles[0].Type = 1;
-    Particles[0].Pos = vec3(2.0f, 1.0f, 1.0f);
-    // Particles[0].Vel = vec3(0.0f, 0.0f, 0.0f);
-    // Particles[0].LifetimeMillis = 0.0f;
-
-    // Particles[1].Type = 8;
-    Particles[1].Pos = vec3(2.0f, 2.0f, 2.0f);
-    // Particles[1].Vel = vec3(0.0f, 0.0f, 0.0f);
-    // Particles[1].LifetimeMillis = 0.0f;
-
-    glGenVertexArrays(1, &updateVao);
-    glBindVertexArray(updateVao);
-    glEnableVertexAttribArray(0);
-    // glEnableVertexAttribArray(1);
-    // glEnableVertexAttribArray(2);
-    // glEnableVertexAttribArray(3);
-    // glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Type))); // type
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Pos))); // position
-    // glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Vel))); // velocity
-    // glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, LifetimeMillis))); // lifetime 
-    glBindVertexArray(0);
-
-    // glGenVertexArrays(1, &renderVao);
-    // glBindVertexArray(renderVao);
-    // glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, Pos))); // position
-    // glBindVertexArray(0);
-
-
-    glGenTransformFeedbacks(2, m_transformFeedback);
+    glGenVertexArrays(2, updateVao);
+    glGenVertexArrays(2, renderVao);
     glGenBuffers(2, m_particleBuffer);
-    for(int i = 0; i < 2; i++){  
+    glGenTransformFeedbacks(2, m_transformFeedback);
+
+    for(int i = 0; i < 2; i++){
+        glBindVertexArray(updateVao[i]);
+            glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[i]);
+                glEnableVertexAttribArray(0);
+                glEnableVertexAttribArray(1);
+                glEnableVertexAttribArray(2);
+                glEnableVertexAttribArray(3);
+                glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, type))); // type
+                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, pos))); // position
+                glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, vel))); // velocity
+                glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, age))); // lifetime
+                glBufferData(GL_ARRAY_BUFFER, sizeof(data), data, GL_DYNAMIC_DRAW);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
+        glBindVertexArray(renderVao[i]);
+            glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[i]);
+                glEnableVertexAttribArray(0);
+                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, pos))); // position
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
         glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[i]);
-        glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[i]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Particles), &Particles[0], GL_DYNAMIC_DRAW);
-        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_particleBuffer[i]);
+            glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_particleBuffer[i]);
+        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
     }
+}
 
-    const GLchar* Varyings[1];
-    // Varyings[0] = "type1";
-    Varyings[0] = "position1";
-    // Varyings[2] = "velocity1";
-    // Varyings[3] = "age1";
-    glTransformFeedbackVaryings(geoShader, 1, Varyings, GL_INTERLEAVED_ATTRIBS);
-    // cout << "huh" << endl;
+void ParticleEmitter::initShaders(){
+    shader_builder geoShaderBuild;
+    geoShaderBuild.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//part_vert.glsl"));
+    geoShaderBuild.set_shader(GL_GEOMETRY_SHADER, CGRA_SRCDIR + std::string("//res//shaders//geometry_shader.glsl"));
+    geoShader = geoShaderBuild.build();
+
+    shader_builder renderShaderBuild;
+    renderShaderBuild.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//color_vert.glsl"));
+	renderShaderBuild.set_shader(GL_FRAGMENT_SHADER, CGRA_SRCDIR + std::string("//res//shaders//color_frag.glsl"));
+    renderShader = renderShaderBuild.build();
+
+    const GLchar* varyings[4];
+    varyings[0] = "type1";
+    varyings[1] = "position1";
+    varyings[2] = "velocity1";
+    varyings[3] = "age1";
+    glTransformFeedbackVaryings(geoShader, sizeof(varyings) / sizeof(GLchar*), varyings, GL_INTERLEAVED_ATTRIBS);
     glLinkProgram(geoShader);
-
-    cout << "init" << endl;
-
-    return false;
 }
 
 void ParticleEmitter::draw(double delta, const mat4 &view, const mat4 proj)
 {
-    // m_time += delta;
+    m_time += delta;
 
     updateParticles(delta);
-    // render(view, proj);
+    render(view, proj);
 
-    m_currVB = m_currTFB;
-    m_currTFB = (m_currTFB + 1) & 0x1;
+    m_currReadBuff = m_currWriteBuff;
+    m_currWriteBuff = (m_currWriteBuff + 1) & 0x1;
 }
 
 void ParticleEmitter::updateParticles(double delta)
 {
     glEnable(GL_RASTERIZER_DISCARD); 
-
-
-    // debug
-    Particle ret[3];
-    Particle retOther[3];
-    int readLen = sizeof(ret) / sizeof(ret[0]);
-
-    cout << "bound tfbuff index = " << m_currTFB << endl;
-    cout << "bound pbuff index = " << m_currVB << endl;
-    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currTFB]);  
-    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * readLen, ret);
-    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currVB]);  
-    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * readLen, retOther);
-    for(int i = 0; i < readLen; i++){
-        cout << i << ": ";
-        // cout << ret[i].Type << " ";
-        // cout << ret[i].LifetimeMillis << " ";
-        cout << ret[i].Pos.x << ", " << ret[i].Pos.y << ", " << ret[i].Pos.z;
-        cout << " -> " << retOther[i].Pos.x << ", " << retOther[i].Pos.y << ", " << retOther[i].Pos.z;
-
-        cout << endl;
-    } // man idk i think the draw arrays call be funny or something
-    cout << endl;
-
-    glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currVB]); 
-    glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Particle) * readLen, ret);
-    glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currTFB]); 
-    glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Particle) * readLen, retOther);
-    cout << "buffer: " << endl;
-    for(int i = 0; i < readLen; i++){
-        cout << i << ": ";
-        // cout << ret[i].Type << " ";
-        // cout << ret[i].LifetimeMillis << " ";
-        cout << ret[i].Pos.x << ", " << ret[i].Pos.y << ", " << ret[i].Pos.z;
-        cout << " -> " << retOther[i].Pos.x << ", " << retOther[i].Pos.y << ", " << retOther[i].Pos.z;
-        cout << endl;
-    } 
-    cout << endl;
-
-    // actual thing >
-
+    glBindVertexArray(updateVao[m_currReadBuff]); 
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currWriteBuff]);
     glUseProgram(geoShader);
-    // glUniform1f(glGetUniformLocation(geoShader, "delta"), (GLfloat) delta);
-
-    glBindVertexArray(updateVao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currVB]); 
-    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currTFB]);  
+    glUniform1f(glGetUniformLocation(geoShader, "delta"), delta);
+    // cout << "delt: " << delta << endl;
     glBeginTransformFeedback(GL_POINTS);
-    if(m_isFirst){
-        glDrawArrays(GL_POINTS, 0, 1); 
-        m_isFirst = false;
+    if(!m_isFirst){
+        glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currReadBuff]);
     }else{
-        glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currVB]);
+        glDrawArrays(GL_POINTS, 0, 1);
+        m_isFirst = false;
     }
     glEndTransformFeedback();
 
+    // Particle ret[10];
+    // glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(ret), ret);
+    // for(int i = 0; i < 10; i++){
+    //     cout << i << ": ";
+    //     cout << ret[i].type << " "; 
+    //     cout << "(" << ret[i].pos.x << ", " << ret[i].pos.y << ", "<< ret[i].pos.z << ") ";
+    //     cout << "(" << ret[i].vel.x << ", " << ret[i].vel.y << ", "<< ret[i].vel.z << ") ";
+    //     cout << ret[i].age << " ";
+    //     cout << endl;
+    // }
+    // cout << endl;
 
-    // debug
-
-    cout << "bound tfbuff index = " << m_currTFB << endl;
-    cout << "bound pbuff index = " << m_currVB << endl;
-    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * readLen, ret);
-    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currVB]);  
-    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(Particle) * readLen, retOther);
-    for(int i = 0; i < readLen; i++){
-        cout << i << ": ";
-        // cout << ret[i].Type << " ";
-        // cout << ret[i].LifetimeMillis << " ";
-        cout << ret[i].Pos.x << ", " << ret[i].Pos.y << ", " << ret[i].Pos.z;
-        cout << " -> " << retOther[i].Pos.x << ", " << retOther[i].Pos.y << ", " << retOther[i].Pos.z;
-
-        cout << endl;
-    } // man idk i think the draw arrays call be funny or something
-    cout << endl;
-
-
-    glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Particle) * readLen, ret);
-    glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currTFB]); 
-    glGetBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Particle) * readLen, retOther);
-    cout << "buffer: " << endl;
-    for(int i = 0; i < readLen; i++){
-        cout << i << ": ";
-        // cout << ret[i].Type << " ";
-        // cout << ret[i].LifetimeMillis << " ";
-        cout << ret[i].Pos.x << ", " << ret[i].Pos.y << ", " << ret[i].Pos.z;
-        cout << " -> " << retOther[i].Pos.x << ", " << retOther[i].Pos.y << ", " << retOther[i].Pos.z;
-        cout << endl;
-    } 
-    cout << "Update end"  << endl << endl << endl;
-   
-   
-
-    glBindVertexArray(0);
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+    glBindVertexArray(0); 
     glDisable(GL_RASTERIZER_DISCARD);    
 }
 
 void ParticleEmitter::render(const mat4& view, const mat4 proj){
-    glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[m_currTFB]);
-
-    glUseProgram(mShader); // load shader and variables
-	glUniformMatrix4fv(glGetUniformLocation(mShader, "uProjectionMatrix"), 1, false, value_ptr(proj));
-	glUniformMatrix4fv(glGetUniformLocation(mShader, "uModelViewMatrix"), 1, false, value_ptr(view));
-	glUniform3fv(glGetUniformLocation(mShader, "uColor"), 1, value_ptr(vec3(0, 1, 0)));
-
-    glBindVertexArray(renderVao);
-    glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currTFB]);
+    glBindVertexArray(renderVao[m_currWriteBuff]);
+    glUseProgram(renderShader);
+    glUniformMatrix4fv(glGetUniformLocation(renderShader, "uProjectionMatrix"), 1, false, value_ptr(proj));
+	glUniformMatrix4fv(glGetUniformLocation(renderShader, "uModelViewMatrix"), 1, false, value_ptr(view));
+	glUniform3fv(glGetUniformLocation(renderShader, "uColor"), 1, value_ptr(vec3(0, 1, 0)));
+    glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currWriteBuff]);
+    glUseProgram(0);
     glBindVertexArray(0);
-
 }

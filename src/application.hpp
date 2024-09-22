@@ -12,6 +12,7 @@
 #include "ParticleEmitter.hpp"
 #include "goTest.hpp"
 
+
 #include <chrono>
 
 // Basic model that holds the shader, mesh and transform for drawing.
@@ -53,8 +54,9 @@ private:
 	// geometry
 	basic_model m_model;
 
-	// ParticleEmitter pe;
+	ParticleEmitter pe;
 	goTest testGeo;
+	int testcount = 0;
 
 	std::chrono::time_point<std::chrono::steady_clock> m_current_time;
 	float m_timescale = 1.0;

@@ -16,30 +16,26 @@ class ParticleEmitter
 {
 private:
     bool m_isFirst;
-
-
-    unsigned int m_currVB = 0;
-    unsigned int m_currTFB = 1;
-    GLuint updateVao;
-    GLuint renderVao;
+    unsigned int m_currReadBuff = 0;
+    unsigned int m_currWriteBuff = 1;
 
     GLuint m_particleBuffer[2];
     GLuint m_transformFeedback[2];
-    // PSUpdateTechnique m_updateTechnique;
-    // BillboardTechnique m_billboardTechnique;
-    // RandomTexture m_randomTexture;
-    // Texture* m_pTexture;
+    GLuint updateVao[2];
+    GLuint renderVao[2];
 
     GLuint geoShader;
-    GLuint mShader;
+    GLuint renderShader;
 
     int m_time;
+
+    void initShaders();
 
 public:
     ParticleEmitter();
     ~ParticleEmitter();
 
-    bool InitParticleSystem(const glm::vec3& pos); 
+    void InitParticleSystem(const glm::vec3& pos); 
     void draw(double delta, const glm::mat4& veiw, const glm::mat4 proj); 
 
     void updateParticles(double delta);

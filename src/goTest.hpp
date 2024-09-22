@@ -19,6 +19,7 @@ private:
     GLuint vao;
     GLuint vbo;
     GLuint tfb;
+    GLuint vbo2;
 
     GLuint geoShader;
 
