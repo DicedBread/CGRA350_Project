@@ -27,6 +27,9 @@ class Asteroid {
   public:
     Asteroid(const siv::PerlinNoise::seed_type seed);
     void draw(const glm::mat4 &view, const glm::mat4 proj);
+    void update_model_transform(const double dt);
+    glm::vec3 position;
+    glm::vec3 velocity;
 
   private:
     cgra::gl_mesh mesh;

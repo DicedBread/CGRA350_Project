@@ -34,6 +34,9 @@ Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
     const static double MC_CUTOFF = 0.5;
     const static double MC_EDGE_LENGTH = 1.0;
 
+    position = vec3(0, 0, 0);
+    velocity = vec3(0, 0, 0);
+
     this->load_shader();
 
     mesh_builder mb;
@@ -861,4 +864,11 @@ void Asteroid::load_shader() {
     GLuint shader = sb.build();
 
     Asteroid::shader = shader;
+}
+
+void Asteroid::update_model_transform(const double dt) {
+    position += velocity * (float)dt;
+
+    modelTransform =
+        glm::translate(glm::scale(mat4(1), glm::vec3(0.1)), position);
 }

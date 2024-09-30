@@ -52,6 +52,11 @@ Application::Application(GLFWwindow *window) : m_window(window) {
     // NOTE: Temporary testing
     testAsteroid = make_shared<Asteroid>(
         std::chrono::system_clock::now().time_since_epoch().count());
+
+    if (true) { // Testing asteroid movement
+        testAsteroid->position = vec3(-1000, 0, -1000);
+        testAsteroid->velocity = vec3(500, 0, 500);
+    }
 }
 
 void Application::render() {
@@ -90,6 +95,13 @@ void Application::render() {
     // draw the model
     // m_model.draw(view, proj);
 
+    // Stop the asteroid from going way off frame, for now
+    if (testAsteroid->position.x >= 0) {
+        testAsteroid->velocity = vec3(0, 0, 0);
+    }
+
+    // NOTE: In future, calculate dt correctly
+    testAsteroid->update_model_transform(1.0 / 60);
     testAsteroid->draw(view, proj);
 }
 
