@@ -196,17 +196,17 @@ Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
                     mb.push_index(vert_index++);
                     mb.push_vertex(
                         mesh_vertex{position + (float)MC_EDGE_LENGTH * vert0,
-                                    norm0, vec2(0, 0)});
+                                    -norm0, vec2(0, 0)});
 
                     mb.push_index(vert_index++);
                     mb.push_vertex(
                         mesh_vertex{position + (float)MC_EDGE_LENGTH * vert1,
-                                    norm1, vec2(0, 0)});
+                                    -norm1, vec2(0, 0)});
 
                     mb.push_index(vert_index++);
                     mb.push_vertex(
                         mesh_vertex{position + (float)MC_EDGE_LENGTH * vert2,
-                                    norm2, vec2(0, 0)});
+                                    -norm2, vec2(0, 0)});
 
                     tri_index += 3;
                 }
@@ -218,7 +218,7 @@ Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
 
     this->mesh = mb.build();
 
-    this->color = vec3(1, 0, 0);
+    this->color = vec3(0.5);
 
     this->modelTransform = glm::scale(mat4(1.0), vec3(0.1));
 }
