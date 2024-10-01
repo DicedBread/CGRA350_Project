@@ -36,6 +36,9 @@ Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
 
     position = vec3(0, 0, 0);
     velocity = vec3(0, 0, 0);
+    rotation_axis = vec3(0, 1, 0);
+    rotation_angle = 0.0;
+    rotation_velocity = 0.0;
 
     this->load_shader();
 
@@ -868,7 +871,8 @@ void Asteroid::load_shader() {
 
 void Asteroid::update_model_transform(const double dt) {
     position += velocity * (float)dt;
+    rotation_angle += rotation_velocity * dt;
 
     modelTransform =
-        glm::translate(glm::scale(mat4(1), glm::vec3(0.1)), position);
+        glm::translate(glm::scale(glm::rotate(mat4(1), (float)rotation_angle, rotation_axis), glm::vec3(0.1)), position);
 }

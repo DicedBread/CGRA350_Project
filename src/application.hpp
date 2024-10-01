@@ -51,6 +51,8 @@ class Application {
     // NOTE: This is temporary
     shared_ptr<Asteroid> testAsteroid;
 
+    std::chrono::time_point<std::chrono::system_clock> m_previousFrameTime;
+
   public:
     // setup
     Application(GLFWwindow *);

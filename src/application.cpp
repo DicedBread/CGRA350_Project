@@ -36,6 +36,8 @@ void basic_model::draw(const glm::mat4 &view, const glm::mat4 proj) {
 
 Application::Application(GLFWwindow *window) : m_window(window) {
 
+    m_previousFrameTime = std::chrono::system_clock::now();
+
     shader_builder sb;
     sb.set_shader(GL_VERTEX_SHADER,
                   CGRA_SRCDIR + std::string("//res//shaders//color_vert.glsl"));
@@ -54,12 +56,20 @@ Application::Application(GLFWwindow *window) : m_window(window) {
         std::chrono::system_clock::now().time_since_epoch().count());
 
     if (true) { // Testing asteroid movement
-        testAsteroid->position = vec3(-1000, 0, -1000);
-        testAsteroid->velocity = vec3(500, 0, 500);
+        testAsteroid->position = vec3(-100, 0, -100);
+        testAsteroid->velocity = vec3(10, 0, 10);
+        testAsteroid->rotation_axis = vec3(0, 1, 0);
+        testAsteroid->rotation_velocity = 1.0;
     }
 }
 
 void Application::render() {
+
+    auto currentTime = std::chrono::system_clock::now();
+    auto deltaTime = std::chrono::duration<double>(currentTime - m_previousFrameTime).count();
+    m_previousFrameTime = currentTime;
+
+    std::cout << "Delta time: " << deltaTime << std::endl;
 
     // retrieve the window hieght
     int width, height;
@@ -101,7 +111,7 @@ void Application::render() {
     }
 
     // NOTE: In future, calculate dt correctly
-    testAsteroid->update_model_transform(1.0 / 60);
+    testAsteroid->update_model_transform(deltaTime);
     testAsteroid->draw(view, proj);
 }
 

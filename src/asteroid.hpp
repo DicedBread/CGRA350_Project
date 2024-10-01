@@ -30,12 +30,15 @@ class Asteroid {
     void update_model_transform(const double dt);
     glm::vec3 position;
     glm::vec3 velocity;
+    glm::vec3 rotation_axis;
+    double rotation_velocity;
 
   private:
     cgra::gl_mesh mesh;
     glm::mat4 modelTransform;
     static GLuint shader;
     glm::vec3 color;
+    double rotation_angle;
 
     // Load the shader program, if it hasn't been loaded already.
     // The shader program is stored in a static variable, so it is shared
