@@ -1,8 +1,0 @@
-合并说明：
-1. 将asteroid和particle文件合并到main的baisc model里
-2. 将particle用到的其他shader合并进去
-3. 将asteroid和particle中跟主shader相关的部分注释
-4. 在particle中添加了两个函数调用drawBefore,drawAfter
-5. 修改CMakeLists，增加对perlin-noise的调用
-
-由于perlin-noise对VS的版本要求较高，我这边没有编译
