@@ -21,32 +21,34 @@ void main(){
     vec3 pos = gl_in[0].gl_Position.xyz;
     vec3 camPos = uCameraPos;
     vec3 camToPoint = normalize(pos - camPos); 
-    vec3 up = vec3(0,1,0);
-    vec3 right = normalize(cross(up, camToPoint));
+    vec3 camUp = vec3(uModelViewMatrix[0][1], uModelViewMatrix[1][1], uModelViewMatrix[2][1]);
+    vec3 camRight = vec3(uModelViewMatrix[0][0], uModelViewMatrix[1][0], uModelViewMatrix[2][0]);
+
+    float billboardScale = 1;
 
     // top left
-    vec3 topLeftPos = pos + vec3(0, 0.5, 0) + (-right * 0.5);
+    vec3 topLeftPos = pos + camRight * -0.5 * billboardScale + camUp * 0.5 * billboardScale;
     g_out.position = uProjectionMatrix * (uModelViewMatrix * vec4(topLeftPos, 1));
     g_out.textCord = vec2(0,1);
     gl_Position = g_out.position;
     EmitVertex();
 
     // bottom left
-    vec3 bottomLeftPos = pos + vec3(0, -0.5, 0) + (-right * 0.5);
+    vec3 bottomLeftPos = pos + camRight * -0.5 * billboardScale + camUp * -0.5 * billboardScale;
     g_out.position = uProjectionMatrix * (uModelViewMatrix * vec4(bottomLeftPos, 1));
     g_out.textCord = vec2(0,0);
     gl_Position = g_out.position;
     EmitVertex();
 
     // top right
-    vec3 topRightPos = pos + vec3(0, 0.5, 0) + (right * 0.5);
+    vec3 topRightPos = pos + camRight * 0.5 * billboardScale + camUp * 0.5 * billboardScale;
     g_out.position = uProjectionMatrix * (uModelViewMatrix * vec4(topRightPos, 1));
     g_out.textCord = vec2(1,1);
     gl_Position = g_out.position;
     EmitVertex();
 
     // bottom right
-    vec3 bottomRightPos = pos + vec3(0, -0.5, 0) + (right * 0.5);
+    vec3 bottomRightPos = pos + camRight * 0.5 * billboardScale + camUp * -0.5 * billboardScale;
     g_out.position = uProjectionMatrix * (uModelViewMatrix * vec4(bottomRightPos, 1));
     g_out.textCord = vec2(1,0);
     gl_Position = g_out.position;
