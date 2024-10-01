@@ -77,6 +77,7 @@ void ParticleEmitter::initShaders(){
 
     shader_builder renderShaderBuild;
     renderShaderBuild.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//color_vert.glsl"));
+    renderShaderBuild.set_shader(GL_GEOMETRY_SHADER, CGRA_SRCDIR + std::string("//res//shaders//pointToQuad.glsl"));
 	renderShaderBuild.set_shader(GL_FRAGMENT_SHADER, CGRA_SRCDIR + std::string("//res//shaders//color_frag.glsl"));
     renderShader = renderShaderBuild.build();
 
@@ -142,6 +143,8 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
     glUniformMatrix4fv(glGetUniformLocation(renderShader, "uProjectionMatrix"), 1, false, value_ptr(proj));
 	glUniformMatrix4fv(glGetUniformLocation(renderShader, "uModelViewMatrix"), 1, false, value_ptr(view));
 	glUniform3fv(glGetUniformLocation(renderShader, "uColor"), 1, value_ptr(vec3(0, 1, 0)));
+    vec3 camPos = (vec4(0, 0, -1, 0) * inverse(view));
+    glUniform3fv(glGetUniformLocation(renderShader, "uCameraPos"), 1, value_ptr(camPos));
     glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currWriteBuff]);
     glUseProgram(0);
     glBindVertexArray(0);
