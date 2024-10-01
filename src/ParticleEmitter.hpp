@@ -31,13 +31,17 @@ private:
     
     int maxParticles = 1000;
 
-    float emitTime = 1;
-    int emitCount = 1;
-    float particleLifeTime = 1;
+    GLuint texture;
 
     void initShaders();
 
 public:
+    float emitTime = 0.01;
+    int emitCount = 1;
+
+    float lifeTime = 20;
+    float speed = 3;
+
     ParticleEmitter();
     ~ParticleEmitter();
 

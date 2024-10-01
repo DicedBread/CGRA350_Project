@@ -10,7 +10,7 @@
 #include "cgra/cgra_mesh.hpp"
 
 #include "ParticleEmitter.hpp"
-
+#include "ParticleModifier.hpp"
 
 #include <chrono>
 
@@ -54,6 +54,7 @@ private:
 	basic_model m_model;
 
 	ParticleEmitter pe;
+	ParticleModifier pm = ParticleModifier(pe);
 
 	std::chrono::time_point<std::chrono::steady_clock> m_current_time;
 	float m_timescale = 1.0;

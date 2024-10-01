@@ -15,6 +15,7 @@ out vec3 position1;
 out vec3 velocity1;
 out float age1;
 
+
 uniform float delta;
 uniform float emitTime = 0.01;
 uniform int emitCount = 10;
@@ -22,8 +23,15 @@ uniform int emitCount = 10;
 uniform float lifeTime = 20;
 uniform float speed = 3;
 
+float offset = 1;
+
 float rand(vec2 co){
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+float it(float v){
+    offset += delta * 1000 * v; 
+    return offset * v;
 }
 
 void main(){
@@ -39,7 +47,7 @@ void main(){
             for(int i = 0; i < emitCount; i++){
                 type1 = 2;
                 position1 = vec3(0,0,0);
-                velocity1 = vec3(rand(vec2(delta * i  * 1000, delta * i * 1000)), 1, rand(vec2(delta * i * 1000, delta * i * 1000)));
+                velocity1 = vec3(rand(vec2(it(delta), it(delta))), 1, rand(vec2(it(delta), it(delta))));
                 age1 = 0;
                 EmitVertex();
                 EndPrimitive();

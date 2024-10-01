@@ -28,6 +28,8 @@ void ParticleEmitter::InitParticleSystem(const vec3 &pos)
 {
     initShaders();
 
+    texture = rgba_image(CGRA_SRCDIR + std::string("//res//textures//uv_texture.jpg")).uploadTexture();
+
     Particle data[1000];
     data[0].type = 1;
     data[0].pos = pos;
@@ -70,7 +72,7 @@ void ParticleEmitter::InitParticleSystem(const vec3 &pos)
 void ParticleEmitter::initShaders(){
     shader_builder geoShaderBuild;
     geoShaderBuild.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//part_vert.glsl"));
-    geoShaderBuild.set_shader(GL_GEOMETRY_SHADER, CGRA_SRCDIR + std::string("//res//shaders//geometry_shader.glsl"));
+    geoShaderBuild.set_shader(GL_GEOMETRY_SHADER, CGRA_SRCDIR + std::string("//res//shaders//particleUpdate.glsl"));
     geoShader = geoShaderBuild.build();
 
     shader_builder renderShaderBuild;
@@ -103,7 +105,11 @@ void ParticleEmitter::updateParticles(double delta)
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currWriteBuff]);
     glUseProgram(geoShader);
     glUniform1f(glGetUniformLocation(geoShader, "delta"), delta);
-    // cout << "delt: " << delta << endl;
+    glUniform1f(glGetUniformLocation(geoShader, "emitTime"), emitTime);
+    glUniform1i(glGetUniformLocation(geoShader, "emitCount"), emitCount);
+    glUniform1f(glGetUniformLocation(geoShader, "lifeTime"), lifeTime);
+    glUniform1f(glGetUniformLocation(geoShader, "speed"), speed);
+
     glBeginTransformFeedback(GL_POINTS);
     if(!m_isFirst){
         glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currReadBuff]);

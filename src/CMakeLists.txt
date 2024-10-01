@@ -15,6 +15,8 @@ SET(sources
 	"ParticleEmitter.cpp"
 	"ParticleEmitter.hpp"
 
+	"ParticleModifier.hpp"
+	"ParticleModifier.cpp"
 
 	"main.cpp"
 

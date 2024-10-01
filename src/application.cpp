@@ -46,6 +46,7 @@ Application::Application(GLFWwindow *window) : m_window(window) {
 	m_model.color = vec3(1, 0, 0);
 
 	pe.InitParticleSystem(vec3(0,0,0));
+	// pm = ParticleEmitter(pe);
 }
 
 
@@ -122,6 +123,8 @@ void Application::renderGUI() {
 	if (ImGui::InputFloat("example input", &exampleInput)) {
 		cout << "example input changed to " << exampleInput << endl;
 	}
+
+	pm.drawUi();
 
 	// finish creating window
 	ImGui::End();
