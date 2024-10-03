@@ -69,8 +69,6 @@ void Application::render() {
     auto deltaTime = std::chrono::duration<double>(currentTime - m_previousFrameTime).count();
     m_previousFrameTime = currentTime;
 
-    std::cout << "Delta time: " << deltaTime << std::endl;
-
     // retrieve the window hieght
     int width, height;
     glfwGetFramebufferSize(m_window, &width, &height);

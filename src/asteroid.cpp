@@ -873,6 +873,10 @@ void Asteroid::update_model_transform(const double dt) {
     position += velocity * (float)dt;
     rotation_angle += rotation_velocity * dt;
 
-    modelTransform =
-        glm::translate(glm::scale(glm::rotate(mat4(1), (float)rotation_angle, rotation_axis), glm::vec3(0.1)), position);
+    mat4 rotation_mat =
+        glm::rotate(mat4(1), (float)rotation_angle, rotation_axis);
+    mat4 translation_mat = glm::translate(mat4(1), position);
+    mat4 scale_mat = glm::scale(mat4(1), glm::vec3(0.1));
+
+    modelTransform = translation_mat * rotation_mat * scale_mat;
 }
