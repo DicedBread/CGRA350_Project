@@ -32,7 +32,7 @@ using namespace glm;
 
 Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
     const static double MC_CUTOFF = 0.5;
-    const static double MC_EDGE_LENGTH = 1.0;
+    const static double MC_EDGE_LENGTH = 2.0;
 
     position = vec3(0, 0, 0);
     velocity = vec3(0, 0, 0);
@@ -46,7 +46,7 @@ Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
 
     const siv::PerlinNoise perlin{seed};
 
-    int width_of_points = 100;
+    int width_of_points = 50;
 
     // - Generate point cloud -
 

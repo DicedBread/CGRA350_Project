@@ -4,6 +4,7 @@
 // glm
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <list>
 
 // project
 #include "asteroid.hpp"
@@ -48,8 +49,10 @@ class Application {
     // geometry
     basic_model m_model;
 
-    // NOTE: This is temporary
-    shared_ptr<Asteroid> testAsteroid;
+    int m_frames_per_astreroid = 60;
+    int m_frames_since_last_asteroid = 0;
+
+    std::list<Asteroid> m_asteroids;
 
     std::chrono::time_point<std::chrono::system_clock> m_previousFrameTime;
 
@@ -64,6 +67,8 @@ class Application {
     // rendering callbacks (every frame)
     void render();
     void renderGUI();
+    void spawnAsteroid();
+    void cullAsteroids();
 
     // input callbacks
     void cursorPosCallback(double xpos, double ypos);

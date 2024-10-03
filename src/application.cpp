@@ -2,6 +2,7 @@
 // std
 #include <chrono>
 #include <iostream>
+#include <random>
 #include <string>
 
 // glm
@@ -50,23 +51,14 @@ Application::Application(GLFWwindow *window) : m_window(window) {
                                        std::string("/res//assets//teapot.obj"))
                        .build();
     m_model.color = vec3(1, 0, 0);
-
-    // NOTE: Temporary testing
-    testAsteroid = make_shared<Asteroid>(
-        std::chrono::system_clock::now().time_since_epoch().count());
-
-    if (true) { // Testing asteroid movement
-        testAsteroid->position = vec3(-100, 0, -100);
-        testAsteroid->velocity = vec3(10, 0, 10);
-        testAsteroid->rotation_axis = vec3(0, 1, 0);
-        testAsteroid->rotation_velocity = 1.0;
-    }
 }
 
 void Application::render() {
 
     auto currentTime = std::chrono::system_clock::now();
-    auto deltaTime = std::chrono::duration<double>(currentTime - m_previousFrameTime).count();
+    auto deltaTime =
+        std::chrono::duration<double>(currentTime - m_previousFrameTime)
+            .count();
     m_previousFrameTime = currentTime;
 
     // retrieve the window hieght
@@ -103,14 +95,17 @@ void Application::render() {
     // draw the model
     // m_model.draw(view, proj);
 
-    // Stop the asteroid from going way off frame, for now
-    if (testAsteroid->position.x >= 0) {
-        testAsteroid->velocity = vec3(0, 0, 0);
+    if (m_frames_since_last_asteroid >= m_frames_per_astreroid) {
+        cullAsteroids();
+        spawnAsteroid();
+        m_frames_since_last_asteroid = 0;
     }
+    m_frames_since_last_asteroid++;
 
-    // NOTE: In future, calculate dt correctly
-    testAsteroid->update_model_transform(deltaTime);
-    testAsteroid->draw(view, proj);
+    for (auto &asteroid : m_asteroids) {
+        asteroid.update_model_transform(deltaTime);
+        asteroid.draw(view, proj);
+    }
 }
 
 void Application::renderGUI() {
@@ -195,4 +190,41 @@ void Application::keyCallback(int key, int scancode, int action, int mods) {
 
 void Application::charCallback(unsigned int c) {
     (void)c; // currently un-used
+}
+
+void Application::spawnAsteroid() {
+    static std::random_device rd;
+    static std::mt19937 rng(rd());
+    static std::uniform_real_distribution<> spawn_position_dist(-20, 20);
+    static std::uniform_real_distribution<> target_position_dist(-10, 10);
+    static std::uniform_real_distribution<> speed_dist(10, 15);
+    static std::normal_distribution<> rotation_axis_dist(0, 1);
+    static std::uniform_int_distribution<> rotation_velocity_dist(1, 4);
+
+    m_asteroids.push_back(
+        Asteroid(std::chrono::system_clock::now().time_since_epoch().count()));
+
+    vec3 spawn_position =
+        vec3(spawn_position_dist(rng), 50, spawn_position_dist(rng));
+
+    vec3 target_position =
+        vec3(target_position_dist(rng), 0, target_position_dist(rng));
+
+    vec3 velocity =
+        normalize(target_position - spawn_position) * (float)speed_dist(rng);
+
+    vec3 rotation_axis = vec3(rotation_axis_dist(rng), rotation_axis_dist(rng),
+                              rotation_axis_dist(rng));
+
+    double rotation_velocity = rotation_velocity_dist(rng);
+
+    m_asteroids.back().position = spawn_position;
+    m_asteroids.back().velocity = velocity;
+    m_asteroids.back().rotation_axis = rotation_axis;
+    m_asteroids.back().rotation_velocity = rotation_velocity;
+}
+
+void Application::cullAsteroids() {
+    m_asteroids.remove_if(
+        [this](const Asteroid &asteroid) { return asteroid.position.y < -10; });
 }
