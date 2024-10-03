@@ -28,7 +28,7 @@ void ParticleEmitter::InitParticleSystem(const vec3 &pos)
 {
     initShaders();
 
-    texture = rgba_image(CGRA_SRCDIR + std::string("//res//textures//uv_texture.jpg")).uploadTexture();
+    texture = rgba_image(CGRA_SRCDIR + std::string("//res//textures//radGrad.png")).uploadTexture();
 
     Particle data[1000];
     data[0].type = 1;
@@ -140,12 +140,20 @@ void ParticleEmitter::updateParticles(double delta)
 void ParticleEmitter::render(const mat4& view, const mat4 proj){
     glBindVertexArray(renderVao[m_currWriteBuff]);
     glUseProgram(renderShader);
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthMask(GL_FALSE);  
     glUniformMatrix4fv(glGetUniformLocation(renderShader, "uProjectionMatrix"), 1, false, value_ptr(proj));
 	glUniformMatrix4fv(glGetUniformLocation(renderShader, "uModelViewMatrix"), 1, false, value_ptr(view));
 	glUniform3fv(glGetUniformLocation(renderShader, "uColor"), 1, value_ptr(vec3(0, 1, 0)));
     vec3 camPos = (vec4(0, 0, -1, 0) * inverse(view));
     glUniform3fv(glGetUniformLocation(renderShader, "uCameraPos"), 1, value_ptr(camPos));
     glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currWriteBuff]);
+    glDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+
     glUseProgram(0);
     glBindVertexArray(0);
 }

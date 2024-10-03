@@ -20,8 +20,10 @@ void main() {
 	// calculate lighting (hack)
 	vec3 eye = normalize(-f_in.position);
 	float light = 1;
-	vec3 color = texture(uText, f_in.textCord).rgb;
-
+	vec4 color = texture(uText, f_in.textCord).rgba;
+	if(color == vec4(0,0,0,0)){
+		discard;
+	}
 	// output to the frambuffer
-	fb_color = vec4(color, 1);
+	fb_color = color;
 }
