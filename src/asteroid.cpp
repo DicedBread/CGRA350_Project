@@ -239,6 +239,9 @@ void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj) {
                        false, value_ptr(modelview));
     glUniform3fv(glGetUniformLocation(shader, "uColor"), 1, value_ptr(color));
 
+    glUniform1f(glGetUniformLocation(shader, "uRoughness"), 1.0);
+    glUniform1f(glGetUniformLocation(shader, "uE_0"), 5.0);
+
     mesh.draw(); // draw
 }
 
@@ -863,7 +866,7 @@ void Asteroid::load_shader() {
     sb.set_shader(GL_VERTEX_SHADER,
                   CGRA_SRCDIR + std::string("//res//shaders//color_vert.glsl"));
     sb.set_shader(GL_FRAGMENT_SHADER,
-                  CGRA_SRCDIR + std::string("//res//shaders//color_frag.glsl"));
+                  CGRA_SRCDIR + std::string("//res//shaders//color_frag_orennayar.glsl"));
     GLuint shader = sb.build();
 
     Asteroid::shader = shader;
