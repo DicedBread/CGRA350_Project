@@ -12,8 +12,19 @@ layout(points) in;
 layout(triangle_strip) out;
 layout(max_vertices = 4) out;
 
+in VertexData{
+    float type;
+    vec3 position;
+    vec3 velocity;
+    float age;
+    vec2 textCord;
+} g_in[];
+
 out VertexData{
+    float type;
     vec4 position;
+    vec3 velocity;
+    float age;
     vec2 textCord;
 } g_out;
 
@@ -25,6 +36,10 @@ void main(){
     vec3 camRight = vec3(uModelViewMatrix[0][0], uModelViewMatrix[1][0], uModelViewMatrix[2][0]);
 
     float billboardScale = 1;
+
+    g_out.type = g_in[0].type;
+    g_out.velocity = g_in[0].velocity;
+    g_out.age = g_in[0].age;
 
     // top left
     vec3 topLeftPos = pos + camRight * -0.5 * billboardScale + camUp * 0.5 * billboardScale;

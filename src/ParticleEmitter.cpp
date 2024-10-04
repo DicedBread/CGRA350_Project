@@ -59,7 +59,13 @@ void ParticleEmitter::InitParticleSystem(const vec3 &pos)
         glBindVertexArray(renderVao[i]);
             glBindBuffer(GL_ARRAY_BUFFER, m_particleBuffer[i]);
                 glEnableVertexAttribArray(0);
-                glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, pos))); // position
+                glEnableVertexAttribArray(1);
+                glEnableVertexAttribArray(2);
+                glEnableVertexAttribArray(3);
+                glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, type))); // type
+                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, pos))); // position
+                glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, vel))); // velocity
+                glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(offsetof(Particle, age))); // lifetime
             glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
 
@@ -76,9 +82,9 @@ void ParticleEmitter::initShaders(){
     geoShader = geoShaderBuild.build();
 
     shader_builder renderShaderBuild;
-    renderShaderBuild.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//color_vert.glsl"));
-    renderShaderBuild.set_shader(GL_GEOMETRY_SHADER, CGRA_SRCDIR + std::string("//res//shaders//pointToQuad.glsl"));
-	renderShaderBuild.set_shader(GL_FRAGMENT_SHADER, CGRA_SRCDIR + std::string("//res//shaders//color_frag.glsl"));
+    renderShaderBuild.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//particle_render_vertex.glsl"));
+    renderShaderBuild.set_shader(GL_GEOMETRY_SHADER, CGRA_SRCDIR + std::string("//res//shaders//particle_render_point_to_quad.glsl"));
+	renderShaderBuild.set_shader(GL_FRAGMENT_SHADER, CGRA_SRCDIR + std::string("//res//shaders//particle_render_fragment.glsl"));
     renderShader = renderShaderBuild.build();
 
     const GLchar* varyings[4];
