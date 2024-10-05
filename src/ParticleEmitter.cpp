@@ -73,12 +73,14 @@ void ParticleEmitter::InitParticleSystem(const vec3 &pos)
             glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, m_particleBuffer[i]);
         glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
     }
+
+    srand(time(0));
 }
 
 void ParticleEmitter::initShaders(){
     shader_builder geoShaderBuild;
-    geoShaderBuild.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//part_vert.glsl"));
-    geoShaderBuild.set_shader(GL_GEOMETRY_SHADER, CGRA_SRCDIR + std::string("//res//shaders//particleUpdate.glsl"));
+    geoShaderBuild.set_shader(GL_VERTEX_SHADER, CGRA_SRCDIR + std::string("//res//shaders//particle_update_vertex.glsl"));
+    geoShaderBuild.set_shader(GL_GEOMETRY_SHADER, CGRA_SRCDIR + std::string("//res//shaders//particle_update_geometry.glsl"));
     geoShader = geoShaderBuild.build();
 
     shader_builder renderShaderBuild;
@@ -116,6 +118,8 @@ void ParticleEmitter::updateParticles(double delta)
     glUniform1i(glGetUniformLocation(geoShader, "emitCount"), emitCount);
     glUniform1f(glGetUniformLocation(geoShader, "lifeTime"), lifeTime);
     glUniform1f(glGetUniformLocation(geoShader, "speed"), speed);
+    float randIterator = (rand() / RAND_MAX);
+    glUniform1f(glGetUniformLocation(geoShader, "randIteratorIn"), randIterator);
 
     glBeginTransformFeedback(GL_POINTS);
     if(!m_isFirst){
@@ -156,6 +160,8 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
 	glUniform3fv(glGetUniformLocation(renderShader, "uColor"), 1, value_ptr(vec3(0, 1, 0)));
     vec3 camPos = (vec4(0, 0, -1, 0) * inverse(view));
     glUniform3fv(glGetUniformLocation(renderShader, "uCameraPos"), 1, value_ptr(camPos));
+    glUniform1f(glGetUniformLocation(renderShader, "billboardSize"), billboardSize);
+
     glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currWriteBuff]);
     glDisable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);

@@ -16,6 +16,8 @@ out vec3 velocity1;
 out float age1;
 
 
+uniform float randIteratorIn;
+
 uniform float delta;
 uniform float emitTime = 0.01;
 uniform int emitCount = 10;
@@ -25,13 +27,17 @@ uniform float speed = 3;
 
 float offset = 1;
 
-float rand(vec2 co){
+float randNoise(vec2 co){
     return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
 }
 
-float it(float v){
-    offset += delta * 1000 * v; 
-    return offset * v;
+float rand(){
+    offset += delta * 100 + randIteratorIn * 1000;
+    return randNoise(vec2(offset, offset / 2));
+}
+
+float randRange(float min, float max){
+    return mix(min, max, rand());
 }
 
 void main(){
@@ -47,12 +53,11 @@ void main(){
             for(int i = 0; i < emitCount; i++){
                 type1 = 2;
                 position1 = vec3(0,0,0);
-                velocity1 = vec3(rand(vec2(it(delta), it(delta))), 1, rand(vec2(it(delta), it(delta))));
+                velocity1 = vec3(randRange(-1, 1), 1, randRange(-1, 1));
                 age1 = 0;
                 EmitVertex();
                 EndPrimitive();
             }
-
         }else{
             age1 = age;
             EmitVertex();

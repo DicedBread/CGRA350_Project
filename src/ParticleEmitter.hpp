@@ -42,6 +42,8 @@ public:
     float lifeTime = 20;
     float speed = 3;
 
+    float billboardSize = 1;
+
     ParticleEmitter();
     ~ParticleEmitter();
 
