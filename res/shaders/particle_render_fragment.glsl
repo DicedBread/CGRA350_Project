@@ -24,13 +24,13 @@ in VertexData{
 out vec4 fb_color;
 
 void main() {
-	// if(f_in.type == 1) discard;
+	if(f_in.type == 1) discard;
 	float agePer = f_in.age / totalLifeTime; 
-
-
 
 	vec3 col = mix(initColor, endColor, agePer);  
 	float alpha = texture(uText, f_in.textCord).a;
+
+	alpha = mix(alpha, 0, agePer);
 
 	vec4 color = vec4(col, alpha);
 	if(color == vec4(0,0,0,0)){
