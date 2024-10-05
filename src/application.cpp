@@ -22,34 +22,13 @@ using namespace std;
 using namespace cgra;
 using namespace glm;
 
-void basic_model::draw(const glm::mat4 &view, const glm::mat4 proj) {
-    mat4 modelview = view * modelTransform;
-
-    glUseProgram(shader); // load shader and variables
-    glUniformMatrix4fv(glGetUniformLocation(shader, "uProjectionMatrix"), 1,
-                       false, value_ptr(proj));
-    glUniformMatrix4fv(glGetUniformLocation(shader, "uModelViewMatrix"), 1,
-                       false, value_ptr(modelview));
-    glUniform3fv(glGetUniformLocation(shader, "uColor"), 1, value_ptr(color));
-
-    mesh.draw(); // draw
-}
 
 Application::Application(GLFWwindow *window) : m_window(window) {
+    m_previousFrameTime = std::chrono::system_clock::now();
 	pe.InitParticleSystem(vec3(0,0,0));
 
-    m_previousFrameTime = std::chrono::system_clock::now();
+    
 
-    shader_builder sb;
-    sb.set_shader(GL_VERTEX_SHADER,
-                  CGRA_SRCDIR + std::string("//res//shaders//color_vert.glsl"));
-    sb.set_shader(GL_FRAGMENT_SHADER,
-                  CGRA_SRCDIR + std::string("//res//shaders//color_frag.glsl"));
-    GLuint shader = sb.build();
-
-    m_model.shader = shader;
-    m_model.mesh = load_wavefront_data(CGRA_SRCDIR + std::string("/res//assets//teapot.obj")).build();
-    m_model.color = vec3(1, 0, 0);
 }
 
 void Application::render() {
