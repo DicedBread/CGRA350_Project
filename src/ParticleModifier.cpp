@@ -19,6 +19,8 @@ void ParticleModifier::drawUi(){
 
         ImGui::SliderFloat("lifeTime", &pe.lifeTime, 0, 30);
         ImGui::SliderFloat("speed", &pe.speed, 0, 10);
+
+        ImGui::SliderFloat("billboard size", &pe.billboardSize, 0, 10);
     }
 
 }

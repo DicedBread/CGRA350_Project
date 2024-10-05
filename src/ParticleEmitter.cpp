@@ -130,17 +130,17 @@ void ParticleEmitter::updateParticles(double delta)
     }
     glEndTransformFeedback();
 
-    // Particle ret[5];
-    // glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(ret), ret);
-    // for(int i = 0; i < 5; i++){
-    //     cout << i << ": ";
-    //     cout << ret[i].type << " "; 
-    //     cout << "(" << ret[i].pos.x << ", " << ret[i].pos.y << ", "<< ret[i].pos.z << ") ";
-    //     cout << "(" << ret[i].vel.x << ", " << ret[i].vel.y << ", "<< ret[i].vel.z << ") ";
-    //     cout << ret[i].age << " ";
-    //     cout << endl;
-    // }
-    // cout << endl;
+    Particle ret[5];
+    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(ret), ret);
+    for(int i = 0; i < 5; i++){
+        cout << i << ": ";
+        cout << ret[i].type << " "; 
+        cout << "(" << ret[i].pos.x << ", " << ret[i].pos.y << ", "<< ret[i].pos.z << ") ";
+        cout << "(" << ret[i].vel.x << ", " << ret[i].vel.y << ", "<< ret[i].vel.z << ") ";
+        cout << ret[i].age << " ";
+        cout << endl;
+    }
+    cout << endl;
 
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
     glBindVertexArray(0); 
