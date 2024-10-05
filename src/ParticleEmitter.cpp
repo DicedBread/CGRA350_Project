@@ -114,6 +114,9 @@ void ParticleEmitter::updateParticles(double delta)
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, m_transformFeedback[m_currWriteBuff]);
     glUseProgram(geoShader);
     glUniform1f(glGetUniformLocation(geoShader, "delta"), delta);
+    glUniform3fv(glGetUniformLocation(geoShader, "emitterVelocity"), 1, value_ptr(emitterVelocity));
+    glUniform1f(glGetUniformLocation(geoShader, "emitterSpeed"), emitterSpeed);
+
     glUniform1f(glGetUniformLocation(geoShader, "emitTime"), emitTime);
     glUniform1i(glGetUniformLocation(geoShader, "emitCount"), emitCount);
     glUniform1f(glGetUniformLocation(geoShader, "lifeTime"), lifeTime);
@@ -130,17 +133,17 @@ void ParticleEmitter::updateParticles(double delta)
     }
     glEndTransformFeedback();
 
-    Particle ret[5];
-    glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(ret), ret);
-    for(int i = 0; i < 5; i++){
-        cout << i << ": ";
-        cout << ret[i].type << " "; 
-        cout << "(" << ret[i].pos.x << ", " << ret[i].pos.y << ", "<< ret[i].pos.z << ") ";
-        cout << "(" << ret[i].vel.x << ", " << ret[i].vel.y << ", "<< ret[i].vel.z << ") ";
-        cout << ret[i].age << " ";
-        cout << endl;
-    }
-    cout << endl;
+    // Particle ret[5];
+    // glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, sizeof(ret), ret);
+    // for(int i = 0; i < 5; i++){
+    //     cout << i << ": ";
+    //     cout << ret[i].type << " "; 
+    //     cout << "(" << ret[i].pos.x << ", " << ret[i].pos.y << ", "<< ret[i].pos.z << ") ";
+    //     cout << "(" << ret[i].vel.x << ", " << ret[i].vel.y << ", "<< ret[i].vel.z << ") ";
+    //     cout << ret[i].age << " ";
+    //     cout << endl;
+    // }
+    // cout << endl;
 
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
     glBindVertexArray(0); 
@@ -161,6 +164,12 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
     vec3 camPos = (vec4(0, 0, -1, 0) * inverse(view));
     glUniform3fv(glGetUniformLocation(renderShader, "uCameraPos"), 1, value_ptr(camPos));
     glUniform1f(glGetUniformLocation(renderShader, "billboardSize"), billboardSize);
+    glUniform1f(glGetUniformLocation(renderShader, "totalLifeTime"), lifeTime);
+    glUniform3fv(glGetUniformLocation(renderShader, "initColor"), 1, value_ptr(initColor));
+    glUniform3fv(glGetUniformLocation(renderShader, "endColor"), 1, value_ptr(endColor));
+
+
+
     glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currWriteBuff]);
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);  
@@ -168,4 +177,11 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
 
     glUseProgram(0);
     glBindVertexArray(0);
+}
+
+void ParticleEmitter::destroy(){
+    glDeleteVertexArrays(2, renderVao);
+    glDeleteVertexArrays(2, updateVao);
+    glDeleteBuffers(2, m_particleBuffer);
+    glDeleteTransformFeedbacks(2, m_transformFeedback);
 }

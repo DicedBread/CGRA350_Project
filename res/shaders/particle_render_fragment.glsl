@@ -7,6 +7,10 @@ uniform vec3 uColor;
 
 uniform sampler2D uText;
 
+uniform float totalLifeTime;
+uniform vec3 initColor;
+uniform vec3 endColor;
+
 // viewspace data (this must match the output of the geo shader)
 in VertexData{
     float type;
@@ -20,11 +24,15 @@ in VertexData{
 out vec4 fb_color;
 
 void main() {
-	// calculate lighting (hack)
-	// vec3 eye = normalize(-f_in.position);
-	// float light = 1;
+	// if(f_in.type == 1) discard;
+	float agePer = f_in.age / totalLifeTime; 
 
-	vec4 color = mix(texture(uText, f_in.textCord).rgba, vec4(f_in.age, 0, 0, 0), 0.5);
+
+
+	vec3 col = mix(initColor, endColor, agePer);  
+	float alpha = texture(uText, f_in.textCord).a;
+
+	vec4 color = vec4(col, alpha);
 	if(color == vec4(0,0,0,0)){
 		discard;
 	}

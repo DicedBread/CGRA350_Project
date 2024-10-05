@@ -19,6 +19,8 @@ out float age1;
 uniform float randIteratorIn;
 
 uniform float delta;
+uniform vec3 emitterVelocity = vec3(0,0,0);
+uniform float emitterSpeed = 0;
 uniform float emitTime = 0.01;
 uniform int emitCount = 10;
 
@@ -46,25 +48,27 @@ void main(){
         type1 = type0[0];
         position1 = position0[0];
         velocity1 = velocity0[0];
+        if(length(emitterVelocity) > 0){
+            position1 = position0[0] + (velocity0[0] * emitterSpeed * delta);
+            velocity1 = normalize(emitterVelocity);
+        }
         if(age >= emitTime){
             age1 = 0;
             EmitVertex();
-            EndPrimitive();
+            EndPrimitive(); // emit emitter 
             for(int i = 0; i < emitCount; i++){
                 type1 = 2;
-                position1 = vec3(0,0,0);
+                position1 = position0[0];
                 velocity1 = vec3(randRange(-1, 1), 1, randRange(-1, 1));
                 age1 = 0;
-                EmitVertex();
+                EmitVertex(); // new particle
                 EndPrimitive();
             }
         }else{
             age1 = age;
-            EmitVertex();
+            EmitVertex(); 
             EndPrimitive();
         }
-    
-
     }
 
     if(type0[0] == 2){
