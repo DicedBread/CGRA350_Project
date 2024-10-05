@@ -20,6 +20,9 @@ SET(sources
 
 	"main.cpp"
 
+    "asteroid.hpp"
+    "asteroid.cpp"
+
 	"CMakeLists.txt"
 )
 
