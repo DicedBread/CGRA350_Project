@@ -161,9 +161,9 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
     vec3 camPos = (vec4(0, 0, -1, 0) * inverse(view));
     glUniform3fv(glGetUniformLocation(renderShader, "uCameraPos"), 1, value_ptr(camPos));
     glUniform1f(glGetUniformLocation(renderShader, "billboardSize"), billboardSize);
-
     glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currWriteBuff]);
     glDisable(GL_BLEND);
+    glDepthMask(GL_TRUE);  
     glDisable(GL_DEPTH_TEST);
 
     glUseProgram(0);
