@@ -25,7 +25,12 @@ using namespace glm;
 
 Application::Application(GLFWwindow *window) : m_window(window) {
     m_previousFrameTime = std::chrono::system_clock::now();
-	pe.InitParticleSystem(vec3(0,0,0));
+	// pe.InitParticleSystem(vec3(0,0,0));
+    for(int i = 0; i < asteroidCount; i++){
+        spawnAsteroid();
+        cout << i << " out of " << asteroidCount << " loaded" << endl;
+    }
+
 }
 
 void Application::render() {
@@ -61,7 +66,7 @@ void Application::render() {
                 rotate(mat4(1), m_yaw, vec3(0, 1, 0));
 
     // pe.draw(deltaTime, view, proj);
-    pe.updateParticles(deltaTime);
+    // pe.updateParticles(deltaTime);
     // pe.render(view, proj);
 
 
@@ -76,19 +81,33 @@ void Application::render() {
 
     // draw the model
     // m_model.draw(view, proj);
-    if (m_frames_since_last_asteroid >= m_frames_per_astreroid) {
-        cullAsteroids();
-        spawnAsteroid();
-        m_frames_since_last_asteroid = 0;
-    }
-    m_frames_since_last_asteroid++;
+    // if (m_frames_since_last_asteroid >= m_frames_per_astreroid) {
+    //     cullAsteroids();
+    //     spawnAsteroid();
+    //     m_frames_since_last_asteroid = 0;
+    // }
+    // m_frames_since_last_asteroid++;
+
+    for(int i = 0; i < m_asteroids.size(); i++){
+        bool shouldReset = m_asteroids.at(i).asteroid.position.y < resetYLevel;
+        if(shouldReset){
+            randomizeAsteroidParams(m_asteroids.at(i));
+        }
+    }    
 
     // pe.updateParticles(deltaTime);
-    for (auto &asteroid : m_asteroids) {
-        asteroid.update_model_transform(deltaTime);
-        asteroid.draw(view, proj);
+    for (auto &aAndPe : m_asteroids) {
+        aAndPe.asteroid.update_model_transform(deltaTime);
+        aAndPe.particleEmitter.updateParticles(deltaTime);
+        aAndPe.asteroid.draw(view, proj);
     }
-    pe.render(view, proj);
+
+    for (auto &aAndPe : m_asteroids) {
+        aAndPe.particleEmitter.render(view, proj);
+    }
+
+
+
 }
 
 void Application::renderGUI() {
@@ -117,14 +136,17 @@ void Application::renderGUI() {
 
     ImGui::Separator();
 
-    // example of how to use input boxes
-    static float exampleInput;
-    if (ImGui::InputFloat("example input", &exampleInput)) {
-        cout << "example input changed to " << exampleInput << endl;
+    if(ImGui::CollapsingHeader("scene edit")){
+        ImGui::SliderFloat("spawn height", &spawnHeight, 0, 500);
+        ImGui::SliderFloat("reset height", &resetYLevel, -100, 500);
     }
 
-	pm.drawUi();
-
+    if(ImGui::CollapsingHeader("particle emitters")){
+        for(int i = 0; i < m_asteroids.size(); i++){
+            ParticleModifier pm(m_asteroids.at(i).particleEmitter);
+            pm.drawUi();
+        }
+    }
 	// finish creating window
 	ImGui::End();
 }
@@ -178,22 +200,35 @@ void Application::charCallback(unsigned int c) {
 }
 
 void Application::spawnAsteroid() {
+    // Asteroid a = ;
+    // ParticleEmitter pe = ;
+    // AsteroidAndPartEmitter e(a, pe);
+    AsteroidAndPartEmitter e = {Asteroid(std::chrono::system_clock::now().time_since_epoch().count()), ParticleEmitter()};
+    randomizeAsteroidParams(e);
+    m_asteroids.push_back(e);
+}
+
+void Application::cullAsteroids() {
+    // m_asteroids.remove_if(
+    //     [this](const Asteroid &asteroid) { return asteroid.position.y < -10; });
+}
+
+void Application::randomizeAsteroidParams(AsteroidAndPartEmitter& aAndPe){
     static std::random_device rd;
     static std::mt19937 rng(rd());
-    static std::uniform_real_distribution<> spawn_position_dist(-20, 20);
-    static std::uniform_real_distribution<> target_position_dist(-10, 10);
+    static std::uniform_real_distribution<> spawn_position_dist(-200, 200);
+    static std::uniform_real_distribution<> target_position_dist(-50, 50);
+    static std::uniform_real_distribution<> velocityXZRange(-10, 10);
+
     static std::uniform_real_distribution<> speed_dist(10, 15);
     static std::normal_distribution<> rotation_axis_dist(0, 1);
     static std::uniform_int_distribution<> rotation_velocity_dist(1, 4);
 
-    m_asteroids.push_back(
-        Asteroid(std::chrono::system_clock::now().time_since_epoch().count()));
-
     vec3 spawn_position =
-        vec3(spawn_position_dist(rng), 50, spawn_position_dist(rng));
+        vec3(spawn_position_dist(rng), spawnHeight, spawn_position_dist(rng));
 
     vec3 target_position =
-        vec3(target_position_dist(rng), 0, target_position_dist(rng));
+        vec3(spawn_position.x + target_position_dist(rng), 0, spawn_position.z + target_position_dist(rng));
 
     vec3 velocity =
         normalize(target_position - spawn_position) * (float)speed_dist(rng);
@@ -203,13 +238,21 @@ void Application::spawnAsteroid() {
 
     double rotation_velocity = rotation_velocity_dist(rng);
 
-    m_asteroids.back().position = spawn_position;
-    m_asteroids.back().velocity = velocity;
-    m_asteroids.back().rotation_axis = rotation_axis;
-    m_asteroids.back().rotation_velocity = rotation_velocity;
-}
+    aAndPe.asteroid.position = spawn_position;
+    aAndPe.asteroid.velocity = velocity;
+    aAndPe.asteroid.rotation_axis = rotation_axis;
+    aAndPe.asteroid.rotation_velocity = rotation_velocity;
 
-void Application::cullAsteroids() {
-    m_asteroids.remove_if(
-        [this](const Asteroid &asteroid) { return asteroid.position.y < -10; });
+    aAndPe.particleEmitter.destroy();
+    aAndPe.particleEmitter.InitParticleSystem(spawn_position);
+    aAndPe.particleEmitter.emitterVelocity = velocity;
+    aAndPe.particleEmitter.emitterSpeed = length(velocity);
+    aAndPe.particleEmitter.initVelocity = velocity;
+    aAndPe.particleEmitter.speed = length(velocity) / 2;
+    aAndPe.particleEmitter.initColor = vec3(1, 0.3, 0);
+    aAndPe.particleEmitter.endColor = vec3(1, 0.8, 0);
+    aAndPe.particleEmitter.lifeTime = 3;
+    aAndPe.particleEmitter.spawnRadius = 2;
+
+
 }

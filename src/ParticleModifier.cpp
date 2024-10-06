@@ -12,7 +12,9 @@ ParticleModifier::ParticleModifier(ParticleEmitter& pEmit) : pe(pEmit)
 ParticleModifier::~ParticleModifier(){}
 
 void ParticleModifier::drawUi(){
-    if(ImGui::CollapsingHeader("particle emitter")){
+    std::stringstream ss;
+    ss << "particle emitter " << &pe;
+    if(ImGui::CollapsingHeader(ss.str().c_str())){
 
         ImGui::SliderFloat3("emitter velocity", value_ptr(pe.emitterVelocity), -1, 1);
         ImGui::SliderFloat("emitter speed", &pe.emitterSpeed, 0, 10);

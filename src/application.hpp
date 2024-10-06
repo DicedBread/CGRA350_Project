@@ -16,6 +16,11 @@
 #include <chrono>
 #include "opengl.hpp"
 
+struct AsteroidAndPartEmitter{
+  Asteroid asteroid;
+  ParticleEmitter particleEmitter;
+};
+
 // Main application class
 //
 class Application
@@ -39,17 +44,15 @@ private:
   bool m_show_grid = false;
   bool m_showWireframe = false;
 
+  int asteroidCount = 20;
+  float resetYLevel = -30;
+  float spawnHeight = 100;
 
-  ParticleEmitter pe;
-  ParticleModifier pm = ParticleModifier(pe);
-
-  // float m_timescale = 1.0;
-  // bool m_pause = false;
 
   int m_frames_per_astreroid = 60;
   int m_frames_since_last_asteroid = 0;
 
-  std::list<Asteroid> m_asteroids;
+  std::vector<AsteroidAndPartEmitter> m_asteroids;
 
   std::chrono::time_point<std::chrono::system_clock> m_previousFrameTime;
 
@@ -66,6 +69,8 @@ public:
   void renderGUI();
   void spawnAsteroid();
   void cullAsteroids();
+
+  void randomizeAsteroidParams(AsteroidAndPartEmitter& aAndPe);
 
   // input callbacks
   void cursorPosCallback(double xpos, double ypos);

@@ -26,6 +26,7 @@ ParticleEmitter::~ParticleEmitter(){}
 
 void ParticleEmitter::InitParticleSystem(const vec3 &pos)
 {
+    m_isFirst = true;
     initShaders();
 
     texture = rgba_image(CGRA_SRCDIR + std::string("//res//textures//radGrad.png")).uploadTexture();

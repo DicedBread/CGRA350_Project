@@ -66,14 +66,14 @@ void handleEmitter(){
     vec3 newEmitterVelocity = velocity0[0];
     bool emitterHasNonZeroVelocity = length(emitterVelocity) > 0;
     if(emitterHasNonZeroVelocity){
-        emitterPosition = position0[0] + (emitterVelocity * emitterSpeed * delta);
+        emitterPosition = position0[0] + (normalize(emitterVelocity) * emitterSpeed * delta);
         newEmitterVelocity = normalize(emitterVelocity);
     }
     bool isTimeToEmit = age >= emitTime; 
     if(isTimeToEmit){ 
         emit(emitterrType, emitterPosition, emitterVelocity, 0);
         for(int i = 0; i < emitCount; i++){
-            vec3 newPartVel = initVelocity;
+            vec3 newPartVel = normalize(initVelocity);
             vec3 spawnPos = position0[0] + vec3(randRange(-1, 1), randRange(-1, 1), randRange(-1, 1)) * spawnRadius;
             emit(PARTICLE_TYPE, spawnPos, newPartVel, 0);
         }
