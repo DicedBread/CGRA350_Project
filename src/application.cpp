@@ -204,6 +204,7 @@ void Application::spawnAsteroid() {
     // ParticleEmitter pe = ;
     // AsteroidAndPartEmitter e(a, pe);
     AsteroidAndPartEmitter e = {Asteroid(std::chrono::system_clock::now().time_since_epoch().count()), ParticleEmitter()};
+    e.particleEmitter.InitParticleSystem(vec3(0));
     randomizeAsteroidParams(e);
     m_asteroids.push_back(e);
 }
@@ -243,8 +244,9 @@ void Application::randomizeAsteroidParams(AsteroidAndPartEmitter& aAndPe){
     aAndPe.asteroid.rotation_axis = rotation_axis;
     aAndPe.asteroid.rotation_velocity = rotation_velocity;
 
-    aAndPe.particleEmitter.destroy();
-    aAndPe.particleEmitter.InitParticleSystem(spawn_position);
+    // aAndPe.particleEmitter.destroy();
+    // aAndPe.particleEmitter.InitParticleSystem(spawn_position);
+    aAndPe.particleEmitter.updatePosition(spawn_position);
     aAndPe.particleEmitter.emitterVelocity = velocity;
     aAndPe.particleEmitter.emitterSpeed = length(velocity);
     aAndPe.particleEmitter.initVelocity = velocity;

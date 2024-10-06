@@ -124,6 +124,8 @@ void ParticleEmitter::updateParticles(double delta)
     glUniform1f(glGetUniformLocation(geoShader, "spawnRadius"), spawnRadius);
     glUniform3fv(glGetUniformLocation(geoShader, "initVelocity"), 1, value_ptr(initVelocity));
 
+    glUniform1i(glGetUniformLocation(geoShader, "shouldUpdatePosition"), shouldUpdatePosition);
+    glUniform3fv(glGetUniformLocation(geoShader, "updatePos"), 1, value_ptr(updatePos));
 
     glBeginTransformFeedback(GL_POINTS);
     if(!m_isFirst){
@@ -169,6 +171,7 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
     glUniform3fv(glGetUniformLocation(renderShader, "initColor"), 1, value_ptr(initColor));
     glUniform3fv(glGetUniformLocation(renderShader, "endColor"), 1, value_ptr(endColor));
 
+
     glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currWriteBuff]);
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);  
@@ -177,6 +180,7 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
     glUseProgram(0);
     glBindVertexArray(0);
     
+    shouldUpdatePosition = false;
     m_currReadBuff = m_currWriteBuff;
     m_currWriteBuff = (m_currWriteBuff + 1) & 0x1; 
 }
@@ -186,4 +190,9 @@ void ParticleEmitter::destroy(){
     glDeleteVertexArrays(2, updateVao);
     glDeleteBuffers(2, m_particleBuffer);
     glDeleteTransformFeedbacks(2, m_transformFeedback);
+}
+
+void ParticleEmitter::updatePosition(const glm::vec3& pos){
+    shouldUpdatePosition = true;
+    updatePos = pos;
 }

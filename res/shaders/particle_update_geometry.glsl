@@ -27,6 +27,9 @@ uniform float emitTime = 0.01;
 uniform int emitCount = 10;
 uniform float spawnRadius = 1;
 
+uniform bool shouldUpdatePosition = false;
+uniform vec3 updatePos = vec3(0,0,0);
+
 uniform vec3 initVelocity = vec3(0, 1, 0);
 uniform float lifeTime = 20;
 uniform float speed = 3;
@@ -68,6 +71,9 @@ void handleEmitter(){
     if(emitterHasNonZeroVelocity){
         emitterPosition = position0[0] + (normalize(emitterVelocity) * emitterSpeed * delta);
         newEmitterVelocity = normalize(emitterVelocity);
+    }
+    if(shouldUpdatePosition){
+        emitterPosition = updatePos + (normalize(emitterVelocity) * emitterSpeed * delta);;
     }
     bool isTimeToEmit = age >= emitTime; 
     if(isTimeToEmit){ 

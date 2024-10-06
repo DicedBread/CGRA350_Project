@@ -33,6 +33,9 @@ private:
 
     GLuint texture;
 
+    bool shouldUpdatePosition = false;
+    glm::vec3 updatePos = glm::vec3(0);
+
     void initShaders();
 
 public:
@@ -59,6 +62,7 @@ public:
 
     void updateParticles(double delta);
     void render(const glm::mat4& view, const glm::mat4 proj); 
+    void updatePosition(const glm::vec3& pos);
 
     void destroy();
 };
