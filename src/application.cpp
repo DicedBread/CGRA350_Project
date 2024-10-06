@@ -109,7 +109,7 @@ void Application::renderGUI() {
 	ImGui::Text("Application %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
 	// deformation level
-	ImGui::SliderFloat("Deformation", &m_deformation, 0.0, 0.1, "%.2lf");
+	ImGui::SliderFloat("Deformation", &m_deformation, 0.0, 10.0, "%.1lf");
 	// ImGui::SliderFloat("Rotate Speed", &m_rotate_speed, 0.1, 1, "%.1lf");
 	// ImGui::SliderFloat("Rotate Radius", &m_rotate_radius, 10, 50, "%.0lf");
 	ImGui::SliderFloat("Distance", &m_distance, 1, 20, "%.1lf");
