@@ -44,7 +44,7 @@ private:
   bool m_show_grid = false;
   bool m_showWireframe = false;
 
-  int asteroidCount = 200;
+  int asteroidCount = 100;
   float resetYLevel = -30;
   float spawnHeight = 100;
 

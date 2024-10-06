@@ -24,12 +24,12 @@ in VertexData{
 out vec4 fb_color;
 
 void main() {
-	// if(f_in.type == 1) discard;
+	if(f_in.type == 1) discard;
 
-	if(f_in.type == 1){
-		fb_color = vec4(1, 0,0,1);
-		return;
-	}
+	// if(f_in.type == 1){
+	// 	fb_color = vec4(1, 0,0,1);
+	// 	return;
+	// }
 
 	float agePer = f_in.age / totalLifeTime; 
 
