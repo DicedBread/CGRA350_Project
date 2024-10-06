@@ -25,7 +25,9 @@ uniform vec3 emitterVelocity = vec3(0,0,0);
 uniform float emitterSpeed = 0;
 uniform float emitTime = 0.01;
 uniform int emitCount = 10;
+uniform float spawnRadius = 1;
 
+uniform vec3 initVelocity = vec3(0, 1, 0);
 uniform float lifeTime = 20;
 uniform float speed = 3;
 
@@ -61,18 +63,19 @@ void handleEmitter(){
     float age = age0[0] + delta;
     float emitterrType = type0[0];
     vec3 emitterPosition = position0[0];
-    vec3 emitterVelocity = velocity0[0];
+    vec3 newEmitterVelocity = velocity0[0];
     bool emitterHasNonZeroVelocity = length(emitterVelocity) > 0;
     if(emitterHasNonZeroVelocity){
-        emitterPosition = position0[0] + (velocity0[0] * emitterSpeed * delta);
-        emitterVelocity = normalize(emitterVelocity);
+        emitterPosition = position0[0] + (emitterVelocity * emitterSpeed * delta);
+        newEmitterVelocity = normalize(emitterVelocity);
     }
     bool isTimeToEmit = age >= emitTime; 
     if(isTimeToEmit){ 
         emit(emitterrType, emitterPosition, emitterVelocity, 0);
         for(int i = 0; i < emitCount; i++){
-            vec3 newPartVel = vec3(randRange(-1, 1), 1, randRange(-1, 1));
-            emit(PARTICLE_TYPE, position0[0], newPartVel, 0);
+            vec3 newPartVel = initVelocity;
+            vec3 spawnPos = position0[0] + vec3(randRange(-1, 1), randRange(-1, 1), randRange(-1, 1)) * spawnRadius;
+            emit(PARTICLE_TYPE, spawnPos, newPartVel, 0);
         }
     }else{
         emit(emitterrType, emitterPosition, emitterVelocity, age);

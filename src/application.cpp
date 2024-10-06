@@ -26,9 +26,6 @@ using namespace glm;
 Application::Application(GLFWwindow *window) : m_window(window) {
     m_previousFrameTime = std::chrono::system_clock::now();
 	pe.InitParticleSystem(vec3(0,0,0));
-
-    
-
 }
 
 void Application::render() {
@@ -63,9 +60,10 @@ void Application::render() {
                 rotate(mat4(1), m_pitch, vec3(1, 0, 0)) *
                 rotate(mat4(1), m_yaw, vec3(0, 1, 0));
 
-	// if (!m_pause){
-		pe.draw(deltaTime, view, proj);
-	// }
+    // pe.draw(deltaTime, view, proj);
+    pe.updateParticles(deltaTime);
+    // pe.render(view, proj);
+
 
 	// draw the model
 	// m_model.draw(view, proj);
@@ -78,7 +76,6 @@ void Application::render() {
 
     // draw the model
     // m_model.draw(view, proj);
-
     if (m_frames_since_last_asteroid >= m_frames_per_astreroid) {
         cullAsteroids();
         spawnAsteroid();
@@ -86,10 +83,12 @@ void Application::render() {
     }
     m_frames_since_last_asteroid++;
 
+    // pe.updateParticles(deltaTime);
     for (auto &asteroid : m_asteroids) {
         asteroid.update_model_transform(deltaTime);
         asteroid.draw(view, proj);
     }
+    pe.render(view, proj);
 }
 
 void Application::renderGUI() {

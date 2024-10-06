@@ -98,14 +98,11 @@ void ParticleEmitter::initShaders(){
     glLinkProgram(geoShader);
 }
 
-void ParticleEmitter::draw(double delta, const mat4 &view, const mat4 proj)
-{
-    updateParticles(delta);
-    render(view, proj);
-
-    m_currReadBuff = m_currWriteBuff;
-    m_currWriteBuff = (m_currWriteBuff + 1) & 0x1;
-}
+// void ParticleEmitter::draw(double delta, const mat4 &view, const mat4 proj)
+// {
+//     updateParticles(delta);
+//     render(view, proj);
+// }
 
 void ParticleEmitter::updateParticles(double delta)
 {
@@ -123,6 +120,9 @@ void ParticleEmitter::updateParticles(double delta)
     glUniform1f(glGetUniformLocation(geoShader, "speed"), speed);
     float randIterator = (rand() / RAND_MAX);
     glUniform1f(glGetUniformLocation(geoShader, "randIteratorIn"), randIterator);
+    glUniform1f(glGetUniformLocation(geoShader, "spawnRadius"), spawnRadius);
+    glUniform3fv(glGetUniformLocation(geoShader, "initVelocity"), 1, value_ptr(initVelocity));
+
 
     glBeginTransformFeedback(GL_POINTS);
     if(!m_isFirst){
@@ -155,7 +155,7 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
     glUseProgram(renderShader);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
+    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(GL_FALSE);  
     glUniformMatrix4fv(glGetUniformLocation(renderShader, "uProjectionMatrix"), 1, false, value_ptr(proj));
@@ -168,8 +168,6 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
     glUniform3fv(glGetUniformLocation(renderShader, "initColor"), 1, value_ptr(initColor));
     glUniform3fv(glGetUniformLocation(renderShader, "endColor"), 1, value_ptr(endColor));
 
-
-
     glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currWriteBuff]);
     glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);  
@@ -177,6 +175,9 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
 
     glUseProgram(0);
     glBindVertexArray(0);
+    
+    m_currReadBuff = m_currWriteBuff;
+    m_currWriteBuff = (m_currWriteBuff + 1) & 0x1; 
 }
 
 void ParticleEmitter::destroy(){

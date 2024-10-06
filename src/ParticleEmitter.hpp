@@ -48,12 +48,14 @@ public:
     glm::vec3 endColor = glm::vec3(1, 1, 1); 
     glm::vec3 emitterVelocity = glm::vec3(0, 0, 0);
     float emitterSpeed = 0;
+    float spawnRadius = 1;
+    glm::vec3 initVelocity = glm::vec3(0, 1, 0);
 
     ParticleEmitter();
     ~ParticleEmitter();
 
     void InitParticleSystem(const glm::vec3& pos); 
-    void draw(double delta, const glm::mat4& veiw, const glm::mat4 proj); 
+    // void draw(double delta, const glm::mat4& veiw, const glm::mat4 proj); 
 
     void updateParticles(double delta);
     void render(const glm::mat4& view, const glm::mat4 proj); 
