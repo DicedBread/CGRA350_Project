@@ -24,15 +24,15 @@
 #include "opengl.hpp"
 
 // header
-#include "asteroid.hpp"
+#include "Asteroid.hpp"
 
 using namespace std;
 using namespace cgra;
 using namespace glm;
 
-Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
-    const static double MC_CUTOFF = 0.5;
-    const static double MC_EDGE_LENGTH = 2.0;
+Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed,
+                   AsteroidMeshConfig *asteroidMeshConfig) {
+    this->asteroidMeshConfig = asteroidMeshConfig;
 
     position = vec3(0, 0, 0);
     velocity = vec3(0, 0, 0);
@@ -42,11 +42,19 @@ Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
 
     this->load_shader();
 
+    this->regenerate_mesh(seed);
+
+    this->color = vec3(0.5);
+
+    this->modelTransform = glm::scale(mat4(1.0), vec3(0.1));
+}
+
+void Asteroid::regenerate_mesh(const siv::PerlinNoise::seed_type seed) {
     mesh_builder mb;
 
     const siv::PerlinNoise perlin{seed};
 
-    int width_of_points = 50;
+    int width_of_points = asteroidMeshConfig->num_verts;
 
     // - Generate point cloud -
 
@@ -91,13 +99,13 @@ Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
     for (int i = 0; i < width_of_points; i++) {
         for (int j = 0; j < width_of_points; j++) {
             for (int k = 0; k < width_of_points; k++) {
-                if (point_cloud[i][j][k] > MC_CUTOFF) {
-                    double x =
-                        (i - (double)width_of_points / 2) * MC_EDGE_LENGTH;
-                    double y =
-                        (j - (double)width_of_points / 2) * MC_EDGE_LENGTH;
-                    double z =
-                        (k - (double)width_of_points / 2) * MC_EDGE_LENGTH;
+                if (point_cloud[i][j][k] > asteroidMeshConfig->cutoff) {
+                    double x = (i - (double)width_of_points / 2) *
+                               asteroidMeshConfig->edge_length;
+                    double y = (j - (double)width_of_points / 2) *
+                               asteroidMeshConfig->edge_length;
+                    double z = (k - (double)width_of_points / 2) *
+                               asteroidMeshConfig->edge_length;
 
                     center += vec3(x, y, z);
                     num_points++;
@@ -123,13 +131,13 @@ Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
 
                 float Gx =
                     (point_cloud[i + 1][j][k] - point_cloud[i - 1][j][k]) / 2 *
-                    MC_EDGE_LENGTH;
+                    asteroidMeshConfig->edge_length;
                 float Gy =
                     (point_cloud[i][j + 1][k] - point_cloud[i][j - 1][k]) / 2 *
-                    MC_EDGE_LENGTH;
+                    asteroidMeshConfig->edge_length;
                 float Gz =
                     (point_cloud[i][j][k + 1] - point_cloud[i][j][k - 1]) / 2 *
-                    MC_EDGE_LENGTH;
+                    asteroidMeshConfig->edge_length;
 
                 point_cloud_grads[i][j][k] = vec3(Gx, Gy, Gz);
             }
@@ -161,58 +169,65 @@ Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
                                    point_cloud[x][y + 1][z + 1],
                                    point_cloud[x + 1][y + 1][z + 1]};
 
-                int mc_case = (points[0] > MC_CUTOFF ? (1 << 0) : 0) +
-                              (points[1] > MC_CUTOFF ? (1 << 1) : 0) +
-                              (points[2] > MC_CUTOFF ? (1 << 2) : 0) +
-                              (points[3] > MC_CUTOFF ? (1 << 3) : 0) +
-                              (points[4] > MC_CUTOFF ? (1 << 4) : 0) +
-                              (points[5] > MC_CUTOFF ? (1 << 5) : 0) +
-                              (points[6] > MC_CUTOFF ? (1 << 6) : 0) +
-                              (points[7] > MC_CUTOFF ? (1 << 7) : 0);
+                int mc_case =
+                    (points[0] > asteroidMeshConfig->cutoff ? (1 << 0) : 0) +
+                    (points[1] > asteroidMeshConfig->cutoff ? (1 << 1) : 0) +
+                    (points[2] > asteroidMeshConfig->cutoff ? (1 << 2) : 0) +
+                    (points[3] > asteroidMeshConfig->cutoff ? (1 << 3) : 0) +
+                    (points[4] > asteroidMeshConfig->cutoff ? (1 << 4) : 0) +
+                    (points[5] > asteroidMeshConfig->cutoff ? (1 << 5) : 0) +
+                    (points[6] > asteroidMeshConfig->cutoff ? (1 << 6) : 0) +
+                    (points[7] > asteroidMeshConfig->cutoff ? (1 << 7) : 0);
 
                 vec3 position =
-                    (float)MC_EDGE_LENGTH * vec3(x - width_of_points / 2,
-                                                 y - width_of_points / 2,
-                                                 z - width_of_points / 2) -
+                    (float)asteroidMeshConfig->edge_length *
+                        vec3(x - width_of_points / 2, y - width_of_points / 2,
+                             z - width_of_points / 2) -
                     center;
 
                 const int *tris = marching_cubes_tris(mc_case);
                 int tri_index = 0;
 
                 while (tris[tri_index] != -1) {
-                    vec3 vert0 = this->marching_cubes_edge(tris[tri_index + 0],
-                                                           points, MC_CUTOFF);
-                    vec3 vert1 = this->marching_cubes_edge(tris[tri_index + 1],
-                                                           points, MC_CUTOFF);
-                    vec3 vert2 = this->marching_cubes_edge(tris[tri_index + 2],
-                                                           points, MC_CUTOFF);
+                    vec3 vert0 =
+                        this->marching_cubes_edge(tris[tri_index + 0], points,
+                                                  asteroidMeshConfig->cutoff);
+                    vec3 vert1 =
+                        this->marching_cubes_edge(tris[tri_index + 1], points,
+                                                  asteroidMeshConfig->cutoff);
+                    vec3 vert2 =
+                        this->marching_cubes_edge(tris[tri_index + 2], points,
+                                                  asteroidMeshConfig->cutoff);
 
                     // Norm of each edge is the average of the gradients of the
                     // points either side of the edge.
                     vec3 norm0 = normalize(marching_cubes_grad(
-                        x, y, z, tris[tri_index + 0], points, MC_CUTOFF,
-                        point_cloud_grads));
+                        x, y, z, tris[tri_index + 0], points,
+                        asteroidMeshConfig->cutoff, point_cloud_grads));
                     vec3 norm1 = normalize(marching_cubes_grad(
-                        x, y, z, tris[tri_index + 1], points, MC_CUTOFF,
-                        point_cloud_grads));
+                        x, y, z, tris[tri_index + 1], points,
+                        asteroidMeshConfig->cutoff, point_cloud_grads));
                     vec3 norm2 = normalize(marching_cubes_grad(
-                        x, y, z, tris[tri_index + 2], points, MC_CUTOFF,
-                        point_cloud_grads));
+                        x, y, z, tris[tri_index + 2], points,
+                        asteroidMeshConfig->cutoff, point_cloud_grads));
 
                     mb.push_index(vert_index++);
-                    mb.push_vertex(
-                        mesh_vertex{position + (float)MC_EDGE_LENGTH * vert0,
-                                    -norm0, vec2(0, 0)});
+                    mb.push_vertex(mesh_vertex{
+                        position +
+                            (float)asteroidMeshConfig->edge_length * vert0,
+                        -norm0, vec2(0, 0)});
 
                     mb.push_index(vert_index++);
-                    mb.push_vertex(
-                        mesh_vertex{position + (float)MC_EDGE_LENGTH * vert1,
-                                    -norm1, vec2(0, 0)});
+                    mb.push_vertex(mesh_vertex{
+                        position +
+                            (float)asteroidMeshConfig->edge_length * vert1,
+                        -norm1, vec2(0, 0)});
 
                     mb.push_index(vert_index++);
-                    mb.push_vertex(
-                        mesh_vertex{position + (float)MC_EDGE_LENGTH * vert2,
-                                    -norm2, vec2(0, 0)});
+                    mb.push_vertex(mesh_vertex{
+                        position +
+                            (float)asteroidMeshConfig->edge_length * vert2,
+                        -norm2, vec2(0, 0)});
 
                     tri_index += 3;
                 }
@@ -223,14 +238,10 @@ Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed) {
     }
 
     this->mesh = mb.build();
-
-    this->color = vec3(0.5);
-
-    this->modelTransform = glm::scale(mat4(1.0), vec3(0.1));
 }
 
 void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj,
-	double deformation, double greenCov) {
+                    double deformation, double greenCov) {
     mat4 modelview = view * modelTransform;
 
     glUseProgram(shader); // load shader and variables
@@ -243,11 +254,11 @@ void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj,
     glUniform1f(glGetUniformLocation(shader, "uRoughness"), 1.0);
     glUniform1f(glGetUniformLocation(shader, "uE_0"), 5.0);
 
-	int is_deformation = fabs(deformation) > 1E-3 ? 1 : 0;
-	glUniform1i(glGetUniformLocation(shader, "uIsDeformation"), is_deformation);
-	glUniform1f(glGetUniformLocation(shader, "uDeformation"), deformation);
+    int is_deformation = fabs(deformation) > 1E-3 ? 1 : 0;
+    glUniform1i(glGetUniformLocation(shader, "uIsDeformation"), is_deformation);
+    glUniform1f(glGetUniformLocation(shader, "uDeformation"), deformation);
 
-	glUniform1f(glGetUniformLocation(shader, "uCovDensity"), greenCov);
+    glUniform1f(glGetUniformLocation(shader, "uCovDensity"), greenCov);
 
     mesh.draw(); // draw
 }
@@ -862,7 +873,6 @@ vec3 Asteroid::marching_cubes_grad(const int i, const int j, const int k,
     }
 }
 
-
 GLuint Asteroid::shader = 0;
 void Asteroid::load_shader() {
     if (Asteroid::shader != 0) {
@@ -874,7 +884,8 @@ void Asteroid::load_shader() {
     sb.set_shader(GL_VERTEX_SHADER,
                   CGRA_SRCDIR + std::string("//res//shaders//color_vert.glsl"));
     sb.set_shader(GL_FRAGMENT_SHADER,
-                  CGRA_SRCDIR + std::string("//res//shaders//color_frag_orennayar.glsl"));
+                  CGRA_SRCDIR +
+                      std::string("//res//shaders//color_frag_orennayar.glsl"));
     sb.set_shader(GL_FRAGMENT_SHADER,
                   CGRA_SRCDIR + std::string("//res//shaders//color_frag.glsl"));
     GLuint shader = sb.build();
