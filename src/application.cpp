@@ -91,8 +91,8 @@ void Application::render() {
         bool shouldReset = m_asteroids.at(i).asteroid.position.y < resetYLevel;
         if (shouldReset) {
             randomizeAsteroidParams(m_asteroids.at(i));
-            m_asteroids.at(i).asteroid.regenerate_mesh(
-                std::chrono::system_clock::now().time_since_epoch().count());
+            // m_asteroids.at(i).asteroid.regenerate_mesh(
+            //     std::chrono::system_clock::now().time_since_epoch().count());
         }
     }
 
