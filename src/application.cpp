@@ -22,10 +22,8 @@ using namespace glm;
 
 Application::Application(GLFWwindow *window) : m_window(window) {
     m_previousFrameTime = std::chrono::system_clock::now();
-    // pe.InitParticleSystem(vec3(0,0,0));
 
     setup();
-    asteroidCount = 20;
 
     asteroidMeshConfig = {0.5, 2.0, 50};
 
@@ -50,20 +48,14 @@ void Application::render() {
             .count();
     m_previousFrameTime = currentTime;
 
-    // auto deltaTime = m_delat_t;
-
     // retrieve the window hieght
     int width, height;
     glfwGetFramebufferSize(m_window, &width, &height);
-
     m_windowsize = vec2(width, height); // update window size
-    glViewport(0, 0, width,
-               height); // set the viewport to draw to the entire window
-
+    glViewport(0, 0, width, height); // set the viewport to draw to the entire window
     // clear the back-buffer
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     // enable flags for normal/forward rendering
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -83,29 +75,42 @@ void Application::render() {
         drawAxis(view, proj);
     glPolygonMode(GL_FRONT_AND_BACK, (m_showWireframe) ? GL_LINE : GL_FILL);
 
-	// central body
-	centerBody.draw(view, proj, deltaTime, m_deformation, m_veg_cov_density);
+
+    switch (activeScene)
+    {
+        case MAIN:
+	        // central body
+	        centerBody.draw(view, proj, deltaTime, m_deformation, m_veg_cov_density);
+
+	        // asteroid
+	        for (int i = 0; i < m_asteroids.size(); i++) {
+                bool shouldReset = m_asteroids.at(i).asteroid.position.y < resetYLevel;
+                if (shouldReset) {
+                    randomizeAsteroidParams(m_asteroids.at(i));
+                    // m_asteroids.at(i).asteroid.regenerate_mesh(
+                    //     std::chrono::system_clock::now().time_since_epoch().count());
+                }
+            }
+
+            for (auto &aAndPe : m_asteroids) {
+                aAndPe.asteroid.update_model_transform(deltaTime);
+                aAndPe.particleEmitter.updateParticles(deltaTime);
+                aAndPe.asteroid.draw(view, proj);
+            }
+
+            for (auto &aAndPe : m_asteroids) {
+                aAndPe.particleEmitter.render(view, proj);
+            }
+            break;
     
-	// asteroid
-	for (int i = 0; i < m_asteroids.size(); i++) {
-        bool shouldReset = m_asteroids.at(i).asteroid.position.y < resetYLevel;
-        if (shouldReset) {
-            randomizeAsteroidParams(m_asteroids.at(i));
-            // m_asteroids.at(i).asteroid.regenerate_mesh(
-            //     std::chrono::system_clock::now().time_since_epoch().count());
-        }
+        case PARTICLE:
+
+            break;
+
+    default:
+        break;
     }
 
-    // pe.updateParticles(deltaTime);
-    for (auto &aAndPe : m_asteroids) {
-        aAndPe.asteroid.update_model_transform(deltaTime);
-        aAndPe.particleEmitter.updateParticles(deltaTime);
-        aAndPe.asteroid.draw(view, proj);
-    }
-
-    for (auto &aAndPe : m_asteroids) {
-        aAndPe.particleEmitter.render(view, proj);
-    }
 
 }
 
@@ -116,45 +121,70 @@ void Application::renderGUI() {
     ImGui::SetNextWindowSize(ImVec2(600, 350), ImGuiSetCond_Once);
     ImGui::Begin("Options", 0);
 
-    // display current camera parameters
-    ImGui::Text("Application %.3f ms/frame (%.1f FPS)",
-                1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::Combo("Active Scene", &activeScene, scenesStrings, sizeof(scenesStrings) / sizeof(const char*), 3);
 
-    // deformation level
-    ImGui::SliderFloat("Deformation", &m_deformation, 0.0, 10, "%.1lf");
-    ImGui::SliderFloat("Distance", &m_distance, 1, 20, "%.1lf");
-    ImGui::SliderFloat("Veg-Cov Density", &m_veg_cov_density, 0.0, 1.0, "%.1lf");
+    // static const char* poses[] = {"default", "walk", "sit", "push up", "jump", "kick"};
+    
+    // ImGui::Combo("pose", &poseValue, poses, sizeof(poses) / sizeof(const char*), 6 
 
-    // show
-    ImGui::Checkbox("Show grid", &m_show_grid);
-    ImGui::SameLine();
-    ImGui::Checkbox("Show axis", &m_show_axis);
-    ImGui::Checkbox("Wireframe", &m_showWireframe);
+    if(ImGui::CollapsingHeader("view info")){
+        // display current camera parameters
+        ImGui::Text("Application %.3f ms/frame (%.1f FPS)",
+                    1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
+        ImGui::SliderFloat("Pitch", &m_pitch, -pi<float>() / 2, pi<float>() / 2,
+                           "%.2f");
+        ImGui::SliderFloat("Yaw", &m_yaw, -pi<float>(), pi<float>(), "%.2f");
+        ImGui::SliderFloat("Distance", &m_distance, 0, 100, "%.2f", 2.0f);
+
+        // show
+        ImGui::Checkbox("Show grid", &m_show_grid);
+        ImGui::SameLine();
+        ImGui::Checkbox("Show axis", &m_show_axis);
+        ImGui::Checkbox("Wireframe", &m_showWireframe);
+    }
     ImGui::Separator();
 
-    if (ImGui::CollapsingHeader("Scene edit")) {
-        ImGui::SliderFloat("Spawn height", &spawnHeight, 0, 500);
-        ImGui::SliderFloat("Reset height", &resetYLevel, -100, 500);
+
+    switch (activeScene)
+    {
+        case MAIN:
+            if (ImGui::CollapsingHeader("Scene edit")) {
+                ImGui::SliderFloat("Spawn height", &spawnHeight, 0, 500);
+                ImGui::SliderFloat("Reset height", &resetYLevel, -100, 500);
+            }
+
+            if(ImGui::CollapsingHeader("Deformation Settings")){
+                // deformation level
+                ImGui::SliderFloat("Deformation", &m_deformation, 0.0, 10, "%.1lf");
+                ImGui::SliderFloat("Distance", &m_distance, 1, 20, "%.1lf");
+                ImGui::SliderFloat("Veg-Cov Density", &m_veg_cov_density, 0.0, 1.0, "%.1lf");
+            }
+
+            if (ImGui::CollapsingHeader("Asteroid Settings")) {
+            	ImGui::SliderFloat("Marching cubes point cutoff",
+            		&asteroidMeshConfig.cutoff, 0.0, 1, "%.2f");
+
+            	ImGui::SliderFloat("Marching cubes edge length",
+            		&asteroidMeshConfig.edge_length, 0.1, 5, "%.2f");
+
+            	ImGui::SliderInt("Num verts (width)", &asteroidMeshConfig.num_verts, 10, 100);
+            }
+
+            if (ImGui::CollapsingHeader("Particle emitters")) {
+                for (int i = 0; i < m_asteroids.size(); i++) {
+                    ParticleModifier pm(m_asteroids.at(i).particleEmitter);
+                    pm.drawUi();
+                }
+            }
+            break;
+    
+    default:
+        break;
     }
 
-    if (ImGui::CollapsingHeader("Particle emitters")) {
-        for (int i = 0; i < m_asteroids.size(); i++) {
-            ParticleModifier pm(m_asteroids.at(i).particleEmitter);
-            pm.drawUi();
-        }
-    }
 
-	if (ImGui::CollapsingHeader("Asteroid Settings")) {
-		ImGui::SliderFloat("Marching cubes point cutoff",
-			&asteroidMeshConfig.cutoff, 0.0, 1, "%.2f");
 
-		ImGui::SliderFloat("Marching cubes edge length",
-			&asteroidMeshConfig.edge_length, 0.1, 5, "%.2f");
-
-		ImGui::SliderInt("Num verts (width)", &asteroidMeshConfig.num_verts, 10,
-			100);
-	}
 
     ImGui::End();
 }

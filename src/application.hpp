@@ -32,6 +32,15 @@ class Application {
     float m_yaw = .0;
     float m_distance = .0;
 
+    static constexpr const char* scenesStrings[] = {"main", "particle", "asteroid"};
+    enum Scenes{
+      MAIN,
+      PARTICLE,
+      ASTEROID
+    };
+
+    int activeScene = MAIN;
+
     // deformation
     float m_deformation = .0;
 
@@ -47,7 +56,7 @@ class Application {
     bool m_show_grid = false;
     bool m_showWireframe = false;
 
-    int asteroidCount = 100;
+    int asteroidCount = 5;
     float resetYLevel = -30;
     float spawnHeight = 100;
 
