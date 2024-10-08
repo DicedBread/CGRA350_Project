@@ -33,8 +33,7 @@ class Asteroid {
   public:
     Asteroid(const siv::PerlinNoise::seed_type seed,
              AsteroidMeshConfig *asteroidMeshConfig);
-    void draw(const glm::mat4 &view, const glm::mat4 proj, double deformation,
-              double greenCov);
+    void draw(const glm::mat4 &view, const glm::mat4 proj);
     void update_model_transform(const double dt);
     glm::vec3 position;
     glm::vec3 velocity;

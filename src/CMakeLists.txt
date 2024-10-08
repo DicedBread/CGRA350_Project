@@ -9,6 +9,8 @@
 SET(sources
 	"application.hpp"
 	"application.cpp"
+	"CenterBody.hpp"
+	"CenterBody.cpp"
 	"Asteroid.cpp"
 	"Asteroid.hpp"
 	"ParticleEmitter.cpp"

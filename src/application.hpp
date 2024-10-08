@@ -12,6 +12,7 @@
 #include "Asteroid.hpp"
 #include "ParticleEmitter.hpp"
 #include "ParticleModifier.hpp"
+#include "CenterBody.hpp"
 
 struct AsteroidAndPartEmitter {
     Asteroid asteroid;
@@ -34,13 +35,6 @@ class Application {
     // deformation
     float m_deformation = .0;
 
-    // rotate control
-    bool m_is_rotate = false;
-    float m_cur_time = .0;
-    float m_delat_t = 0.1;
-    float m_rotate_radius = .0;
-    float m_rotate_speed = .0;
-
     // vegetation coverage density
     float m_veg_cov_density = .0;
 
@@ -62,6 +56,9 @@ class Application {
 
     AsteroidMeshConfig asteroidMeshConfig;
     std::vector<AsteroidAndPartEmitter> m_asteroids;
+
+	// central body
+	CenterBody centerBody;
 
     std::chrono::time_point<std::chrono::system_clock> m_previousFrameTime;
 

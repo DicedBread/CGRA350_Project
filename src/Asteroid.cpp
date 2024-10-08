@@ -240,8 +240,7 @@ void Asteroid::regenerate_mesh(const siv::PerlinNoise::seed_type seed) {
     this->mesh = mb.build();
 }
 
-void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj,
-                    double deformation, double greenCov) {
+void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj) {
     mat4 modelview = view * modelTransform;
 
     glUseProgram(shader); // load shader and variables
@@ -253,12 +252,6 @@ void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj,
 
     glUniform1f(glGetUniformLocation(shader, "uRoughness"), 1.0);
     glUniform1f(glGetUniformLocation(shader, "uE_0"), 5.0);
-
-    int is_deformation = fabs(deformation) > 1E-3 ? 1 : 0;
-    glUniform1i(glGetUniformLocation(shader, "uIsDeformation"), is_deformation);
-    glUniform1f(glGetUniformLocation(shader, "uDeformation"), deformation);
-
-    glUniform1f(glGetUniformLocation(shader, "uCovDensity"), greenCov);
 
     mesh.draw(); // draw
 }
