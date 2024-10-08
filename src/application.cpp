@@ -25,7 +25,7 @@ Application::Application(GLFWwindow *window) : m_window(window) {
     // pe.InitParticleSystem(vec3(0,0,0));
 
     setup();
-    asteroidCount = 0;
+    asteroidCount = 20;
 
     asteroidMeshConfig = {0.5, 2.0, 50};
 
