@@ -125,6 +125,7 @@ void ParticleEmitter::updateParticles(double delta)
     glUniform1f(glGetUniformLocation(geoShader, "randIteratorIn"), randIterator);
     glUniform1f(glGetUniformLocation(geoShader, "spawnRadius"), spawnRadius);
     glUniform3fv(glGetUniformLocation(geoShader, "initVelocity"), 1, value_ptr(initVelocity));
+    glUniform3fv(glGetUniformLocation(geoShader, "velVariance"), 1, value_ptr(velVariance));
 
 
     glUniform1i(glGetUniformLocation(geoShader, "shouldUpdatePosition"), shouldUpdatePosition);

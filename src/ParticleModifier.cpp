@@ -34,9 +34,11 @@ void ParticleModifier::drawUi(){
 
         ImGui::SliderFloat("lifeTime", &pe.lifeTime, 0, 30);
         ImGui::SliderFloat3("inital velocity", value_ptr(pe.initVelocity), -1, 1);
+        ImGui::SliderFloat3("velocity variance", value_ptr(pe.velVariance), 0, 1);
+
 
         ImGui::SliderFloat("speed", &pe.speed, 0, 10);
-        ImGui::SliderFloat("speed drop to percent", &pe.speedDropPercent, 0, 1);
+        ImGui::SliderFloat("speed drop to percent", &pe.speedDropPercent, 0, 10);
 
         ImGui::SliderFloat("spawn radius", &pe.spawnRadius, 0, 10);
         ImGui::SliderFloat("init billboard size", &pe.initBillboardSize, 0, 10);

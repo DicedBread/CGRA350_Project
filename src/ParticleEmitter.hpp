@@ -56,6 +56,7 @@ public:
     glm::vec3 endColor = glm::vec3(1, 1, 1); 
     glm::vec3 initColor = glm::vec3(1, 1, 1);
     
+    glm::vec3 velVariance = glm::vec3(0);
 
     bool isOneOff = false;
     bool shouldEmitOneOff = false;

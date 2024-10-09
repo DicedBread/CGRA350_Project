@@ -38,6 +38,7 @@ uniform float speedDropPercent = 0.5;
 uniform bool isOneOff = false;
 uniform bool shouldEmitOneOff = false;
 
+uniform vec3 velVariance = vec3(0,0,0);
 
 float offset = 1;
 
@@ -87,7 +88,11 @@ void handleEmitter(){
     if(isTimeToEmit){ 
         emit(emitterrType, emitterPosition, emitterVelocity, 0);
         for(int i = 0; i < emitCount; i++){
-            vec3 newPartVel = normalize(initVelocity);
+            vec3 newPartVel = normalize(initVelocity) ;
+            newPartVel = vec3(newPartVel.x + randRange(-velVariance.x, velVariance.x),
+                            newPartVel.y + randRange(-velVariance.y, velVariance.y),
+                            newPartVel.z + randRange(-velVariance.z, velVariance.z));
+            newPartVel = normalize(newPartVel);
             vec3 spawnPos = position0[0] + vec3(randRange(-1, 1), randRange(-1, 1), randRange(-1, 1)) * spawnRadius;
             emit(PARTICLE_TYPE, spawnPos, newPartVel, 0);
         }
