@@ -31,6 +31,8 @@ Application::Application(GLFWwindow *window) : m_window(window) {
         spawnAsteroid();
         cout << i << " out of " << asteroidCount << " loaded" << endl;
     }
+
+    particleEmitter.InitParticleSystem(vec3(0));
 }
 
 void Application::setup() {
@@ -104,7 +106,8 @@ void Application::render() {
             break;
     
         case PARTICLE:
-
+            particleEmitter.updateParticles(deltaTime);
+            particleEmitter.render(view, proj);
             break;
 
     default:
@@ -178,7 +181,10 @@ void Application::renderGUI() {
                 }
             }
             break;
-    
+
+        case PARTICLE:
+            particleModifier.drawUi();
+            break;
     default:
         break;
     }

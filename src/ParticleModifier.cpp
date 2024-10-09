@@ -19,7 +19,7 @@ void ParticleModifier::drawUi(){
         ImGui::SliderFloat3("emitter velocity", value_ptr(pe.emitterVelocity), -1, 1);
         ImGui::SliderFloat("emitter speed", &pe.emitterSpeed, 0, 10);
         ImGui::SliderFloat("emitTime", &pe.emitTime, 0, 10);
-        ImGui::SliderInt("emitCount", &pe.emitCount, 0, 100);
+        ImGui::SliderInt("emitCount", &pe.emitCount, 1, 100);
         ImGui::Separator();
 
         ImGui::SliderFloat("lifeTime", &pe.lifeTime, 0, 30);

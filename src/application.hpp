@@ -66,8 +66,11 @@ class Application {
     AsteroidMeshConfig asteroidMeshConfig;
     std::vector<AsteroidAndPartEmitter> m_asteroids;
 
-	// central body
-	CenterBody centerBody;
+	  // central body
+	  CenterBody centerBody;
+
+    ParticleEmitter particleEmitter;
+    ParticleModifier particleModifier = ParticleModifier(particleEmitter);
 
     std::chrono::time_point<std::chrono::system_clock> m_previousFrameTime;
 
