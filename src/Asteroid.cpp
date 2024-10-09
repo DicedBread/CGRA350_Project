@@ -41,6 +41,7 @@ Asteroid::Asteroid(const siv::PerlinNoise::seed_type seed,
     rotation_velocity = 0.0;
 
     this->load_shader();
+    this->load_texture();
 
     this->regenerate_mesh(seed);
 
@@ -211,23 +212,41 @@ void Asteroid::regenerate_mesh(const siv::PerlinNoise::seed_type seed) {
                         x, y, z, tris[tri_index + 2], points,
                         asteroidMeshConfig->cutoff, point_cloud_grads));
 
-                    mb.push_index(vert_index++);
-                    mb.push_vertex(mesh_vertex{
+                    vec3 temp_pos =
                         position +
-                            (float)asteroidMeshConfig->edge_length * vert0,
-                        -norm0, vec2(0, 0)});
+                        (float)asteroidMeshConfig->edge_length * vert0;
+                    vec2 temp_uv = xyzToUv(temp_pos);
+                    vec2 last_uv = temp_uv;
+                    mb.push_index(vert_index++);
+                    mb.push_vertex(mesh_vertex{temp_pos, -norm0, temp_uv});
 
+                    temp_pos = position +
+                               (float)asteroidMeshConfig->edge_length * vert1,
+                    temp_uv = xyzToUv(temp_pos);
+                    if (abs(temp_uv.x - last_uv.x) > 0.5) {
+                        if (temp_uv.x > last_uv.x) {
+                            temp_uv.x -= 1;
+                        } else {
+                            temp_uv.x += 1;
+                        }
+                    }
+                    last_uv = temp_uv;
                     mb.push_index(vert_index++);
-                    mb.push_vertex(mesh_vertex{
-                        position +
-                            (float)asteroidMeshConfig->edge_length * vert1,
-                        -norm1, vec2(0, 0)});
+                    mb.push_vertex(mesh_vertex{temp_pos, -norm1, temp_uv});
 
+                    temp_pos = position +
+                               (float)asteroidMeshConfig->edge_length * vert2,
+                    temp_uv = xyzToUv(temp_pos);
+                    if (abs(temp_uv.x - last_uv.x) > 0.5) {
+                        if (temp_uv.x > last_uv.x) {
+                            temp_uv.x -= 1;
+                        } else {
+                            temp_uv.x += 1;
+                        }
+                    }
+                    last_uv = temp_uv;
                     mb.push_index(vert_index++);
-                    mb.push_vertex(mesh_vertex{
-                        position +
-                            (float)asteroidMeshConfig->edge_length * vert2,
-                        -norm2, vec2(0, 0)});
+                    mb.push_vertex(mesh_vertex{temp_pos, -norm2, temp_uv});
 
                     tri_index += 3;
                 }
@@ -249,6 +268,11 @@ void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj) {
     glUniformMatrix4fv(glGetUniformLocation(shader, "uModelViewMatrix"), 1,
                        false, value_ptr(modelview));
     glUniform3fv(glGetUniformLocation(shader, "uColor"), 1, value_ptr(color));
+    glUniform1i(glGetUniformLocation(shader, "uUseTexture"), true);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glUniform1i(glGetUniformLocation(shader, "uTexture"), 1);
 
     glUniform1f(glGetUniformLocation(shader, "uRoughness"), 1.0);
     glUniform1f(glGetUniformLocation(shader, "uE_0"), 5.0);
@@ -879,11 +903,24 @@ void Asteroid::load_shader() {
     sb.set_shader(GL_FRAGMENT_SHADER,
                   CGRA_SRCDIR +
                       std::string("//res//shaders//color_frag_orennayar.glsl"));
-    sb.set_shader(GL_FRAGMENT_SHADER,
-                  CGRA_SRCDIR + std::string("//res//shaders//color_frag.glsl"));
     GLuint shader = sb.build();
 
     Asteroid::shader = shader;
+}
+
+GLuint Asteroid::texture = 0;
+void Asteroid::load_texture() {
+    if (Asteroid::texture != 0) {
+        // Texture already loaded
+        return;
+    }
+
+    // https://www.nasa.gov/nasa-brand-center/images-and-media/
+    // https://github.com/nasa/NASA-3D-Resources/tree/master/Images%20and%20Textures/Venus
+    rgba_image image_texture(CGRA_SRCDIR +
+                             std::string("//res//textures//ven0aaa2.jpg"));
+
+    Asteroid::texture = image_texture.uploadTexture();
 }
 
 void Asteroid::update_model_transform(const double dt) {

@@ -77,44 +77,48 @@ void Application::render() {
         drawAxis(view, proj);
     glPolygonMode(GL_FRONT_AND_BACK, (m_showWireframe) ? GL_LINE : GL_FILL);
 
+    switch (activeScene) {
+    case MAIN:
+        // central body
+        centerBody.draw(view, proj, deltaTime, m_deformation,
+                        m_veg_cov_density);
 
-    switch (activeScene)
-    {
-        case MAIN:
-	        // central body
-	        centerBody.draw(view, proj, deltaTime, m_deformation, m_veg_cov_density);
-
-	        // asteroid
-	        for (int i = 0; i < m_asteroids.size(); i++) {
-                bool shouldReset = m_asteroids.at(i).asteroid.position.y < resetYLevel;
-                if (shouldReset) {
-                    randomizeAsteroidParams(m_asteroids.at(i));
-                    // m_asteroids.at(i).asteroid.regenerate_mesh(
-                    //     std::chrono::system_clock::now().time_since_epoch().count());
-                }
+        // asteroid
+        for (int i = 0; i < m_asteroids.size(); i++) {
+            bool shouldReset =
+                m_asteroids.at(i).asteroid.position.y < resetYLevel;
+            if (shouldReset) {
+                randomizeAsteroidParams(m_asteroids.at(i));
+                // m_asteroids.at(i).asteroid.regenerate_mesh(
+                //     std::chrono::system_clock::now().time_since_epoch().count());
             }
+        }
 
-            for (auto &aAndPe : m_asteroids) {
-                aAndPe.asteroid.update_model_transform(deltaTime);
-                aAndPe.particleEmitter.updateParticles(deltaTime);
-                aAndPe.asteroid.draw(view, proj);
-            }
+        for (auto &aAndPe : m_asteroids) {
+            aAndPe.asteroid.update_model_transform(deltaTime);
+            aAndPe.particleEmitter.updateParticles(deltaTime);
+            aAndPe.asteroid.draw(view, proj);
+        }
 
-            for (auto &aAndPe : m_asteroids) {
-                aAndPe.particleEmitter.render(view, proj);
-            }
-            break;
-    
-        case PARTICLE:
-            particleEmitter.updateParticles(deltaTime);
-            particleEmitter.render(view, proj);
-            break;
+        for (auto &aAndPe : m_asteroids) {
+            aAndPe.particleEmitter.render(view, proj);
+        }
+        break;
 
-    default:
+    case PARTICLE:
+        particleEmitter.updateParticles(deltaTime);
+        particleEmitter.render(view, proj);
+        break;
+
+    case ASTEROID:
+        m_asteroids.at(0).asteroid.position = vec3(0, 0, 0);
+        m_asteroids.at(0).asteroid.velocity = vec3(0, 0, 0);
+        m_asteroids.at(0).asteroid.rotation_axis = vec3(0, 1, 0);
+        m_asteroids.at(0).asteroid.rotation_velocity = 1;
+        m_asteroids.at(0).asteroid.update_model_transform(deltaTime);
+        m_asteroids.at(0).asteroid.draw(view, proj);
         break;
     }
-
-
 }
 
 void Application::renderGUI() {
@@ -124,16 +128,30 @@ void Application::renderGUI() {
     ImGui::SetNextWindowSize(ImVec2(600, 350), ImGuiSetCond_Once);
     ImGui::Begin("Options", 0);
 
-    ImGui::Combo("Active Scene", &activeScene, scenesStrings, sizeof(scenesStrings) / sizeof(const char*), 3);
+    if (ImGui::Combo("Active Scene", &activeScene, scenesStrings,
+                     sizeof(scenesStrings) / sizeof(const char *), 3)) {
+        switch (activeScene) {
+        case MAIN:
+            // Regenerate the first asteroid, it may have been modified by the
+            // ASTEROID scene.
+            randomizeAsteroidParams(m_asteroids.at(0));
+            break;
+        default:
+            break;
+        }
+    }
 
-    // static const char* poses[] = {"default", "walk", "sit", "push up", "jump", "kick"};
-    
-    // ImGui::Combo("pose", &poseValue, poses, sizeof(poses) / sizeof(const char*), 6 
+    // static const char* poses[] = {"default", "walk", "sit", "push up",
+    // "jump", "kick"};
 
-    if(ImGui::CollapsingHeader("view info")){
+    // ImGui::Combo("pose", &poseValue, poses, sizeof(poses) / sizeof(const
+    // char*), 6
+
+    if (ImGui::CollapsingHeader("view info")) {
         // display current camera parameters
         ImGui::Text("Application %.3f ms/frame (%.1f FPS)",
-                    1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                    1000.0f / ImGui::GetIO().Framerate,
+                    ImGui::GetIO().Framerate);
 
         ImGui::SliderFloat("Pitch", &m_pitch, -pi<float>() / 2, pi<float>() / 2,
                            "%.2f");
@@ -148,7 +166,6 @@ void Application::renderGUI() {
         ImGui::SliderFloat("time scale", &timescale, 0, 5);
     }
     ImGui::Separator();
-
 
     switch (activeScene)
     {
@@ -187,12 +204,25 @@ void Application::renderGUI() {
         case PARTICLE:
             particleModifier.drawUi();
             break;
+        case ASTEROID:
+            if (ImGui::CollapsingHeader("Asteroid Settings")) {
+            	ImGui::SliderFloat("Marching cubes point cutoff",
+            		&asteroidMeshConfig.cutoff, 0.0, 1, "%.2f");
+
+            	ImGui::SliderFloat("Marching cubes edge length",
+            		&asteroidMeshConfig.edge_length, 0.1, 5, "%.2f");
+
+            	ImGui::SliderInt("Num verts (width)", &asteroidMeshConfig.num_verts, 10, 100);
+
+                if (ImGui::Button("Regenerate Asteroid")) {
+                    m_asteroids.at(0).asteroid.regenerate_mesh(
+                        std::chrono::system_clock::now().time_since_epoch().count());
+                }
+            }
+            break;
     default:
         break;
     }
-
-
-
 
     ImGui::End();
 }
