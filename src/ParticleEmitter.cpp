@@ -127,6 +127,10 @@ void ParticleEmitter::updateParticles(double delta)
     glUniform1i(glGetUniformLocation(geoShader, "shouldUpdatePosition"), shouldUpdatePosition);
     glUniform3fv(glGetUniformLocation(geoShader, "updatePos"), 1, value_ptr(updatePos));
 
+    glUniform1i(glGetUniformLocation(geoShader, "isOneOff"), isOneOff);
+    glUniform1i(glGetUniformLocation(geoShader, "shouldEmitOneOff"), shouldEmitOneOff);
+
+
     glBeginTransformFeedback(GL_POINTS);
     if(!m_isFirst){
         glDrawTransformFeedback(GL_POINTS, m_transformFeedback[m_currReadBuff]);
@@ -151,6 +155,9 @@ void ParticleEmitter::updateParticles(double delta)
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
     glBindVertexArray(0); 
     glDisable(GL_RASTERIZER_DISCARD);    
+
+    shouldEmitOneOff = false;
+    shouldUpdatePosition = false;
 }
 
 void ParticleEmitter::render(const mat4& view, const mat4 proj){
@@ -180,7 +187,6 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
     glUseProgram(0);
     glBindVertexArray(0);
     
-    shouldUpdatePosition = false;
     m_currReadBuff = m_currWriteBuff;
     m_currWriteBuff = (m_currWriteBuff + 1) & 0x1; 
 }
@@ -195,4 +201,8 @@ void ParticleEmitter::destroy(){
 void ParticleEmitter::updatePosition(const glm::vec3& pos){
     shouldUpdatePosition = true;
     updatePos = pos;
+}
+
+void ParticleEmitter::emitOneOff(){
+    shouldEmitOneOff = true;
 }

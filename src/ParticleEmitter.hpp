@@ -54,6 +54,9 @@ public:
     float spawnRadius = 1;
     glm::vec3 initVelocity = glm::vec3(0, 1, 0);
 
+    bool isOneOff = false;
+    bool shouldEmitOneOff = false;
+
     ParticleEmitter();
     ~ParticleEmitter();
 
@@ -63,6 +66,8 @@ public:
     void updateParticles(double delta);
     void render(const glm::mat4& view, const glm::mat4 proj); 
     void updatePosition(const glm::vec3& pos);
+
+    void emitOneOff();
 
     void destroy();
 };

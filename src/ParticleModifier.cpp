@@ -20,6 +20,14 @@ void ParticleModifier::drawUi(){
         ImGui::SliderFloat("emitter speed", &pe.emitterSpeed, 0, 10);
         ImGui::SliderFloat("emitTime", &pe.emitTime, 0, 10);
         ImGui::SliderInt("emitCount", &pe.emitCount, 1, 100);
+
+        ImGui::Checkbox("one off", &pe.isOneOff);
+        if(pe.isOneOff){
+            if(ImGui::Button("emit")){
+                pe.emitOneOff();
+            }
+        }
+
         ImGui::Separator();
 
         ImGui::SliderFloat("lifeTime", &pe.lifeTime, 0, 30);

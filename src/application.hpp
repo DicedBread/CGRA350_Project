@@ -39,7 +39,7 @@ class Application {
       ASTEROID
     };
 
-    int activeScene = MAIN;
+    int activeScene = PARTICLE;
 
     // deformation
     float m_deformation = .0;
@@ -56,7 +56,7 @@ class Application {
     bool m_show_grid = false;
     bool m_showWireframe = false;
 
-    int asteroidCount = 5;
+    int asteroidCount = 0;
     float resetYLevel = -30;
     float spawnHeight = 100;
 

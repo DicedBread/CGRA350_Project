@@ -34,6 +34,10 @@ uniform vec3 initVelocity = vec3(0, 1, 0);
 uniform float lifeTime = 20;
 uniform float speed = 3;
 
+uniform bool isOneOff = false;
+uniform bool shouldEmitOneOff = false;
+
+
 float offset = 1;
 
 float randNoise(vec2 co){
@@ -75,7 +79,10 @@ void handleEmitter(){
     if(shouldUpdatePosition){
         emitterPosition = updatePos + (normalize(emitterVelocity) * emitterSpeed * delta);;
     }
-    bool isTimeToEmit = age >= emitTime; 
+
+    bool needToEmitOneOff = isOneOff && shouldEmitOneOff;
+    bool isTimeToEmitForPassiveEmit = age >= emitTime && !isOneOff;
+    bool isTimeToEmit = isTimeToEmitForPassiveEmit || needToEmitOneOff; 
     if(isTimeToEmit){ 
         emit(emitterrType, emitterPosition, emitterVelocity, 0);
         for(int i = 0; i < emitCount; i++){
