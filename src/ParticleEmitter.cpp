@@ -119,6 +119,8 @@ void ParticleEmitter::updateParticles(double delta)
     glUniform1i(glGetUniformLocation(geoShader, "emitCount"), emitCount);
     glUniform1f(glGetUniformLocation(geoShader, "lifeTime"), lifeTime);
     glUniform1f(glGetUniformLocation(geoShader, "speed"), speed);
+    glUniform1f(glGetUniformLocation(geoShader, "speedDropPercent"), speedDropPercent);
+
     float randIterator = (rand() / RAND_MAX);
     glUniform1f(glGetUniformLocation(geoShader, "randIteratorIn"), randIterator);
     glUniform1f(glGetUniformLocation(geoShader, "spawnRadius"), spawnRadius);

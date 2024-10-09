@@ -292,15 +292,16 @@ void Application::randomizeAsteroidParams(AsteroidAndPartEmitter &aAndPe) {
     aAndPe.asteroid.rotation_axis = rotation_axis;
     aAndPe.asteroid.rotation_velocity = rotation_velocity;
 
-    // aAndPe.particleEmitter.destroy();
-    // aAndPe.particleEmitter.InitParticleSystem(spawn_position);
     aAndPe.particleEmitter.updatePosition(spawn_position);
     aAndPe.particleEmitter.emitterVelocity = velocity;
     aAndPe.particleEmitter.emitterSpeed = length(velocity);
+    aAndPe.particleEmitter.billboardSize = 0.5;
+
     aAndPe.particleEmitter.initVelocity = velocity;
-    aAndPe.particleEmitter.speed = length(velocity) / 2;
+    aAndPe.particleEmitter.speed = length(velocity) - (length(velocity) / 100);
+    aAndPe.particleEmitter.speedDropPercent = 0.1;
     aAndPe.particleEmitter.initColor = vec3(1, 0.3, 0);
     aAndPe.particleEmitter.endColor = vec3(1, 0.8, 0);
-    aAndPe.particleEmitter.lifeTime = 3;
-    aAndPe.particleEmitter.spawnRadius = 2;
+    aAndPe.particleEmitter.lifeTime = 5;
+    aAndPe.particleEmitter.spawnRadius = 1.5;
 }

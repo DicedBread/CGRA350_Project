@@ -39,20 +39,22 @@ private:
     void initShaders();
 
 public:
-    float emitTime = 0.01;
+    // emitter propertys
     int emitCount = 1;
-
-    float lifeTime = 20;
-    float speed = 3;
-
-    float billboardSize = 1;
-    glm::vec3 initColor = glm::vec3(1, 1, 1);
-
-    glm::vec3 endColor = glm::vec3(1, 1, 1); 
+    float emitTime = 0.01;
     glm::vec3 emitterVelocity = glm::vec3(0, 0, 0);
     float emitterSpeed = 0;
     float spawnRadius = 1;
+
+    // particle props
+    float billboardSize = 1;
+    float lifeTime = 20;
+    float speed = 3;
+    float speedDropPercent = 0.5;
     glm::vec3 initVelocity = glm::vec3(0, 1, 0);
+    glm::vec3 endColor = glm::vec3(1, 1, 1); 
+    glm::vec3 initColor = glm::vec3(1, 1, 1);
+    
 
     bool isOneOff = false;
     bool shouldEmitOneOff = false;

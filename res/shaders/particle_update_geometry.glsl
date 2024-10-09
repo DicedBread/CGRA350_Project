@@ -33,6 +33,7 @@ uniform vec3 updatePos = vec3(0,0,0);
 uniform vec3 initVelocity = vec3(0, 1, 0);
 uniform float lifeTime = 20;
 uniform float speed = 3;
+uniform float speedDropPercent = 0.5;
 
 uniform bool isOneOff = false;
 uniform bool shouldEmitOneOff = false;
@@ -98,8 +99,12 @@ void handleEmitter(){
 // handles particle type primative
 void handleParticle(){
     float age = age0[0] + delta;
+	float agePer = age / lifeTime; 
+
+    float lSpeed = mix(speed, speed * speedDropPercent, agePer);
+
     if(age < lifeTime){
-        vec3 newPosition = position0[0] + (velocity0[0] * speed * delta);
+        vec3 newPosition = position0[0] + (velocity0[0] * lSpeed * delta);
         emit(PARTICLE_TYPE, newPosition, velocity0[0], age);
     }
 }

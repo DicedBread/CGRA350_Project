@@ -18,6 +18,8 @@ void ParticleModifier::drawUi(){
 
         ImGui::SliderFloat3("emitter velocity", value_ptr(pe.emitterVelocity), -1, 1);
         ImGui::SliderFloat("emitter speed", &pe.emitterSpeed, 0, 10);
+        ImGui::Separator();
+
         ImGui::SliderFloat("emitTime", &pe.emitTime, 0, 10);
         ImGui::SliderInt("emitCount", &pe.emitCount, 1, 100);
 
@@ -34,6 +36,8 @@ void ParticleModifier::drawUi(){
         ImGui::SliderFloat3("inital velocity", value_ptr(pe.initVelocity), -1, 1);
 
         ImGui::SliderFloat("speed", &pe.speed, 0, 10);
+        ImGui::SliderFloat("speed drop to percent", &pe.speedDropPercent, 0, 1);
+
         ImGui::SliderFloat("spawn radius", &pe.spawnRadius, 0, 10);
         ImGui::SliderFloat("billboard size", &pe.billboardSize, 0, 10);
 
