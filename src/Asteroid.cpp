@@ -267,12 +267,16 @@ void Asteroid::draw(const glm::mat4 &view, const glm::mat4 proj) {
                        false, value_ptr(proj));
     glUniformMatrix4fv(glGetUniformLocation(shader, "uModelViewMatrix"), 1,
                        false, value_ptr(modelview));
+    glUniformMatrix4fv(glGetUniformLocation(shader, "uViewMatrix"), 1, false,
+                       value_ptr(view));
     glUniform3fv(glGetUniformLocation(shader, "uColor"), 1, value_ptr(color));
     glUniform1i(glGetUniformLocation(shader, "uUseTexture"), true);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glUniform1i(glGetUniformLocation(shader, "uTexture"), 1);
+    glUniform3f(glGetUniformLocation(shader, "uHeatLightDir"), velocity.x,
+                velocity.y, velocity.z);
 
     glUniform1f(glGetUniformLocation(shader, "uRoughness"), 1.0);
     glUniform1f(glGetUniformLocation(shader, "uE_0"), 5.0);
