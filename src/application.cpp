@@ -305,12 +305,12 @@ void Application::randomizeAsteroidParams(AsteroidAndPartEmitter &aAndPe) {
 
 void Application::peSetup(ParticleEmitter& pe){
     pe.emitCount = 2;
+    pe.emitTime = 0.05;
     pe.initBillboardSize = 1.5;
     pe.endBillboardSize = 0.3;
-
     pe.speedDropPercent = 0.1;
     pe.initColor = vec3(1, 0.3, 0);
     pe.endColor = vec3(1, 0.8, 0);
-    pe.lifeTime = 5;
+    pe.lifeTime = 4;
     pe.spawnRadius = 1.5;
 }

@@ -98,7 +98,7 @@ void handleEmitter(){
 
 // handles particle type primative
 void handleParticle(){
-    float age = age0[0] + delta;
+    float age = age0[0] + (delta * rand());
 	float agePer = age / lifeTime; 
 
     float lSpeed = mix(speed, speed * speedDropPercent, agePer);
