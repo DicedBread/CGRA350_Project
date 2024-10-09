@@ -54,6 +54,22 @@ class Asteroid {
     static GLuint shader;
     static void load_shader();
 
+    static GLuint texture;
+    static void load_texture();
+
+    static vec2 xyzToUv(vec3 xyz) {
+        vec3 n = normalize(xyz);
+
+        float longitude = atan2(n.z, n.x);
+        float latitude = asin(n.y);
+
+        float u =
+            1.0f - (longitude + glm::pi<float>()) / (2.0f * glm::pi<float>());
+        float v = (latitude + glm::half_pi<float>()) / glm::pi<float>();
+
+        return glm::vec2(u, v);
+    }
+
     // A helper function for finding when a the t value of when a linear
     // interpolation crosses a cutoff value.
     double inverse_lerp(const double a, const double b, const double x) {

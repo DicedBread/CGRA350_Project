@@ -7,8 +7,8 @@ uniform vec3 uColor;
 uniform float uRoughness;
 uniform float uE_0;
 uniform float uLightIntensity;
-// uniform sampler2D uTexture;
-// uniform bool uUseTexture;
+uniform sampler2D uTexture;
+uniform bool uUseTexture;
 
 // viewspace data (this must match the output of the fragment shader)
 in VertexData {
@@ -33,9 +33,9 @@ void main() {
 
     vec3 texture_color = uColor;
 
-    //     if (uUseTexture) {
-    //         texture_color = texture(uTexture, f_in.textureCoord).rgb;
-    //     }
+    if (uUseTexture) {
+        texture_color = texture(uTexture, f_in.textureCoord).rgb;
+    }
 
     // Useful vectors for later
     vec3 L = normalize((vec4(light_pos, 1)).xyz - f_in.position);
