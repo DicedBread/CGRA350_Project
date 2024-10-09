@@ -39,7 +39,7 @@ class Application {
       ASTEROID
     };
 
-    int activeScene = PARTICLE;
+    int activeScene = MAIN;
 
     // deformation
     float m_deformation = .0;
