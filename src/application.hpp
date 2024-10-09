@@ -59,6 +59,7 @@ class Application {
     int asteroidCount = 10;
     float resetYLevel = -30;
     float spawnHeight = 100;
+    glm::vec2 spawnRange = glm::vec2(200.0, 200.0);
 
     int m_frames_per_astreroid = 60;
     int m_frames_since_last_asteroid = 0;
@@ -92,6 +93,8 @@ class Application {
     void cullAsteroids();
 
     void randomizeAsteroidParams(AsteroidAndPartEmitter &aAndPe);
+
+    void peSetup(ParticleEmitter &pe);
 
     // input callbacks
     void cursorPosCallback(double xpos, double ypos);

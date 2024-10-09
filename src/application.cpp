@@ -155,6 +155,7 @@ void Application::renderGUI() {
             if (ImGui::CollapsingHeader("Scene edit")) {
                 ImGui::SliderFloat("Spawn height", &spawnHeight, 0, 500);
                 ImGui::SliderFloat("Reset height", &resetYLevel, -100, 500);
+                ImGui::SliderFloat2("spawn range", value_ptr(spawnRange), 1, 500);
             }
 
             if(ImGui::CollapsingHeader("Deformation Settings")){
@@ -252,6 +253,7 @@ void Application::spawnAsteroid() {
                  &asteroidMeshConfig),
         ParticleEmitter()};
     e.particleEmitter.InitParticleSystem(vec3(0));
+    peSetup(e.particleEmitter);
     randomizeAsteroidParams(e);
     m_asteroids.push_back(e);
 }
@@ -265,7 +267,7 @@ void Application::cullAsteroids() {
 void Application::randomizeAsteroidParams(AsteroidAndPartEmitter &aAndPe) {
     static std::random_device rd;
     static std::mt19937 rng(rd());
-    static std::uniform_real_distribution<> spawn_position_dist(-200, 200);
+    static std::uniform_real_distribution<> spawn_position_dist(-spawnRange.x, spawnRange.y);
     static std::uniform_real_distribution<> target_position_dist(-50, 50);
     static std::uniform_real_distribution<> velocityXZRange(-10, 10);
 
@@ -291,17 +293,23 @@ void Application::randomizeAsteroidParams(AsteroidAndPartEmitter &aAndPe) {
     aAndPe.asteroid.velocity = velocity;
     aAndPe.asteroid.rotation_axis = rotation_axis;
     aAndPe.asteroid.rotation_velocity = rotation_velocity;
-
+    
     aAndPe.particleEmitter.updatePosition(spawn_position);
     aAndPe.particleEmitter.emitterVelocity = velocity;
     aAndPe.particleEmitter.emitterSpeed = length(velocity);
-    aAndPe.particleEmitter.billboardSize = 0.5;
-
     aAndPe.particleEmitter.initVelocity = velocity;
     aAndPe.particleEmitter.speed = length(velocity) - (length(velocity) / 100);
-    aAndPe.particleEmitter.speedDropPercent = 0.1;
-    aAndPe.particleEmitter.initColor = vec3(1, 0.3, 0);
-    aAndPe.particleEmitter.endColor = vec3(1, 0.8, 0);
-    aAndPe.particleEmitter.lifeTime = 5;
-    aAndPe.particleEmitter.spawnRadius = 1.5;
+
+}
+
+void Application::peSetup(ParticleEmitter& pe){
+    pe.emitCount = 2;
+    pe.initBillboardSize = 1.5;
+    pe.endBillboardSize = 0.3;
+
+    pe.speedDropPercent = 0.1;
+    pe.initColor = vec3(1, 0.3, 0);
+    pe.endColor = vec3(1, 0.8, 0);
+    pe.lifeTime = 5;
+    pe.spawnRadius = 1.5;
 }

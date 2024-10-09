@@ -27,9 +27,15 @@ uniform mat4 uModelViewMatrix;
 uniform vec3 uColor;
 uniform vec3 uCameraPos;
 
-uniform float billboardSize = 1;
+uniform float initBillboardSize = 1;
+uniform float endBillboardSize = 0.1;
+uniform float totalLifeTime;
 
 void main(){
+	float agePer = g_in[0].age / totalLifeTime; 
+
+    float billboardSize = mix(initBillboardSize, endBillboardSize, agePer); 
+
     vec3 pos = gl_in[0].gl_Position.xyz;
     vec3 camPos = uCameraPos;
     vec3 camToPoint = normalize(pos - camPos); 

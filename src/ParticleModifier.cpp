@@ -39,7 +39,9 @@ void ParticleModifier::drawUi(){
         ImGui::SliderFloat("speed drop to percent", &pe.speedDropPercent, 0, 1);
 
         ImGui::SliderFloat("spawn radius", &pe.spawnRadius, 0, 10);
-        ImGui::SliderFloat("billboard size", &pe.billboardSize, 0, 10);
+        ImGui::SliderFloat("init billboard size", &pe.initBillboardSize, 0, 10);
+        ImGui::SliderFloat("end billboard size", &pe.endBillboardSize, 0, 10);
+
 
         ImGui::SliderFloat3("inital color", value_ptr(pe.initColor), 0, 1);
         ImGui::SliderFloat3("end color", value_ptr(pe.endColor), 0, 1);

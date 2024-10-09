@@ -47,7 +47,8 @@ public:
     float spawnRadius = 1;
 
     // particle props
-    float billboardSize = 1;
+    float initBillboardSize = 1;
+    float endBillboardSize= 0.1;
     float lifeTime = 20;
     float speed = 3;
     float speedDropPercent = 0.5;

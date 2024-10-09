@@ -126,6 +126,7 @@ void ParticleEmitter::updateParticles(double delta)
     glUniform1f(glGetUniformLocation(geoShader, "spawnRadius"), spawnRadius);
     glUniform3fv(glGetUniformLocation(geoShader, "initVelocity"), 1, value_ptr(initVelocity));
 
+
     glUniform1i(glGetUniformLocation(geoShader, "shouldUpdatePosition"), shouldUpdatePosition);
     glUniform3fv(glGetUniformLocation(geoShader, "updatePos"), 1, value_ptr(updatePos));
 
@@ -175,7 +176,9 @@ void ParticleEmitter::render(const mat4& view, const mat4 proj){
 	glUniform3fv(glGetUniformLocation(renderShader, "uColor"), 1, value_ptr(vec3(0, 1, 0)));
     vec3 camPos = (vec4(0, 0, -1, 0) * inverse(view));
     glUniform3fv(glGetUniformLocation(renderShader, "uCameraPos"), 1, value_ptr(camPos));
-    glUniform1f(glGetUniformLocation(renderShader, "billboardSize"), billboardSize);
+    glUniform1f(glGetUniformLocation(renderShader, "initBillboardSize"), initBillboardSize);
+    glUniform1f(glGetUniformLocation(renderShader, "endBillboardSize"), endBillboardSize);
+
     glUniform1f(glGetUniformLocation(renderShader, "totalLifeTime"), lifeTime);
     glUniform3fv(glGetUniformLocation(renderShader, "initColor"), 1, value_ptr(initColor));
     glUniform3fv(glGetUniformLocation(renderShader, "endColor"), 1, value_ptr(endColor));
