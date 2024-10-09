@@ -74,6 +74,7 @@ class Application {
     ParticleModifier particleModifier = ParticleModifier(particleEmitter);
 
     std::chrono::time_point<std::chrono::system_clock> m_previousFrameTime;
+    float timescale = 1;
 
   public:
     // setup

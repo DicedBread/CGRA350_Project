@@ -47,7 +47,7 @@ void Application::render() {
     auto currentTime = std::chrono::system_clock::now();
     auto deltaTime =
         std::chrono::duration<double>(currentTime - m_previousFrameTime)
-            .count();
+            .count() * timescale;
     m_previousFrameTime = currentTime;
 
     // retrieve the window hieght
@@ -145,6 +145,7 @@ void Application::renderGUI() {
         ImGui::SameLine();
         ImGui::Checkbox("Show axis", &m_show_axis);
         ImGui::Checkbox("Wireframe", &m_showWireframe);
+        ImGui::SliderFloat("time scale", &timescale, 0, 5);
     }
     ImGui::Separator();
 
