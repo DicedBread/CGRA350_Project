@@ -167,13 +167,6 @@ void Application::renderGUI() {
     }
     ImGui::Separator();
 
-    switch (activeScene) {
-    case MAIN:
-        if (ImGui::CollapsingHeader("Scene edit")) {
-            ImGui::SliderFloat("Spawn height", &spawnHeight, 0, 500);
-            ImGui::SliderFloat("Reset height", &resetYLevel, -100, 500);
-        }
-
     switch (activeScene)
     {
         case MAIN:
@@ -182,15 +175,51 @@ void Application::renderGUI() {
                 ImGui::SliderFloat("Reset height", &resetYLevel, -100, 500);
                 ImGui::SliderFloat2("spawn range", value_ptr(spawnRange), 1, 500);
             }
-        }
-        break;
 
-    case PARTICLE:
-        particleModifier.drawUi();
-        break;
+            if(ImGui::CollapsingHeader("Deformation Settings")){
+                // deformation level
+                ImGui::SliderFloat("Deformation", &m_deformation, 0.0, 10, "%.1lf");
+                ImGui::SliderFloat("Distance", &m_distance, 1, 20, "%.1lf");
+                ImGui::SliderFloat("Veg-Cov Density", &m_veg_cov_density, 0.0, 1.0, "%.1lf");
+            }
 
-    case ASTEROID:
-        break;
+            if (ImGui::CollapsingHeader("Asteroid Settings")) {
+            	ImGui::SliderFloat("Marching cubes point cutoff",
+            		&asteroidMeshConfig.cutoff, 0.0, 1, "%.2f");
+
+            	ImGui::SliderFloat("Marching cubes edge length",
+            		&asteroidMeshConfig.edge_length, 0.1, 5, "%.2f");
+
+            	ImGui::SliderInt("Num verts (width)", &asteroidMeshConfig.num_verts, 10, 100);
+            }
+
+            if (ImGui::CollapsingHeader("Particle emitters")) {
+                for (int i = 0; i < m_asteroids.size(); i++) {
+                    ParticleModifier pm(m_asteroids.at(i).particleEmitter);
+                    pm.drawUi();
+                }
+            }
+            break;
+
+        case PARTICLE:
+            particleModifier.drawUi();
+            break;
+        case ASTEROID:
+            if (ImGui::CollapsingHeader("Asteroid Settings")) {
+            	ImGui::SliderFloat("Marching cubes point cutoff",
+            		&asteroidMeshConfig.cutoff, 0.0, 1, "%.2f");
+
+            	ImGui::SliderFloat("Marching cubes edge length",
+            		&asteroidMeshConfig.edge_length, 0.1, 5, "%.2f");
+
+            	ImGui::SliderInt("Num verts (width)", &asteroidMeshConfig.num_verts, 10, 100);
+
+                if (ImGui::Button("Regenerate Asteroid")) {
+                    m_asteroids.at(0).asteroid.regenerate_mesh(
+                        std::chrono::system_clock::now().time_since_epoch().count());
+                }
+            }
+            break;
     default:
         break;
     }
