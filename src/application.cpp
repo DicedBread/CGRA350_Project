@@ -112,7 +112,7 @@ void Application::render() {
 
     case ASTEROID:
         m_asteroids.at(0).asteroid.position = vec3(0, 0, 0);
-        m_asteroids.at(0).asteroid.velocity = vec3(0, 0, 0);
+        m_asteroids.at(0).asteroid.velocity = vec3(0, -0.5, 0);
         m_asteroids.at(0).asteroid.rotation_axis = vec3(0, 1, 0);
         m_asteroids.at(0).asteroid.rotation_velocity = 1;
         m_asteroids.at(0).asteroid.update_model_transform(deltaTime);
