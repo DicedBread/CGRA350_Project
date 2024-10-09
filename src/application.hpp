@@ -59,7 +59,7 @@ class Application {
     int asteroidCount = 10;
     float resetYLevel = -30;
     float spawnHeight = 100;
-    glm::vec2 spawnRange = glm::vec2(200.0, 200.0);
+    glm::vec2 spawnRange = glm::vec2(100.0, 100.0);
 
     int m_frames_per_astreroid = 60;
     int m_frames_since_last_asteroid = 0;
