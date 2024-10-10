@@ -329,7 +329,9 @@ void Application::randomizeAsteroidParams(AsteroidAndPartEmitter &aAndPe) {
     aAndPe.particleEmitter.emitterVelocity = velocity;
     aAndPe.particleEmitter.emitterSpeed = length(velocity);
     aAndPe.particleEmitter.initVelocity = velocity;
-    aAndPe.particleEmitter.speed = length(velocity) - (length(velocity) / 100);
+    aAndPe.particleEmitter.initSpeed = length(velocity) - (length(velocity) / 100);
+    aAndPe.particleEmitter.dragStrength = 0.2;
+
 
 }
 

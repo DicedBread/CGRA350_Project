@@ -118,14 +118,22 @@ void ParticleEmitter::updateParticles(double delta)
     glUniform1f(glGetUniformLocation(geoShader, "emitTime"), emitTime);
     glUniform1i(glGetUniformLocation(geoShader, "emitCount"), emitCount);
     glUniform1f(glGetUniformLocation(geoShader, "lifeTime"), lifeTime);
-    glUniform1f(glGetUniformLocation(geoShader, "speed"), speed);
-    glUniform1f(glGetUniformLocation(geoShader, "speedDropPercent"), speedDropPercent);
+    glUniform1f(glGetUniformLocation(geoShader, "initSpeed"), initSpeed);
+    glUniform1f(glGetUniformLocation(geoShader, "maxSpeed"), maxSpeed);
+
+    // glUniform1f(glGetUniformLocation(geoShader, "speedDropPercent"), speedDropPercent);
+    glUniform1f(glGetUniformLocation(geoShader, "dragStrength"), dragStrength);
+
 
     float randIterator = (rand() / RAND_MAX);
     glUniform1f(glGetUniformLocation(geoShader, "randIteratorIn"), randIterator);
     glUniform1f(glGetUniformLocation(geoShader, "spawnRadius"), spawnRadius);
     glUniform3fv(glGetUniformLocation(geoShader, "initVelocity"), 1, value_ptr(initVelocity));
     glUniform3fv(glGetUniformLocation(geoShader, "velVariance"), 1, value_ptr(velVariance));
+    glUniform3fv(glGetUniformLocation(geoShader, "constForceDir"), 1, value_ptr(constForceDir));
+    glUniform1f(glGetUniformLocation(geoShader, "constForceStrength"), constForceStrength);
+
+
 
 
     glUniform1i(glGetUniformLocation(geoShader, "shouldUpdatePosition"), shouldUpdatePosition);

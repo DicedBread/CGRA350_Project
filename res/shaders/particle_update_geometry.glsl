@@ -31,14 +31,20 @@ uniform bool shouldUpdatePosition = false;
 uniform vec3 updatePos = vec3(0,0,0);
 
 uniform vec3 initVelocity = vec3(0, 1, 0);
+uniform float initSpeed = 3;
 uniform float lifeTime = 20;
-uniform float speed = 3;
+uniform float maxSpeed = 3;
 uniform float speedDropPercent = 0.5;
 
 uniform bool isOneOff = false;
 uniform bool shouldEmitOneOff = false;
 
+uniform float maxAccel = 100;
 uniform vec3 velVariance = vec3(0,0,0);
+uniform vec3 constForceDir = vec3(0,0,0);
+uniform float constForceStrength = 0;
+
+uniform float dragStrength = 50;
 
 float offset = 1;
 
@@ -88,11 +94,11 @@ void handleEmitter(){
     if(isTimeToEmit){ 
         emit(emitterrType, emitterPosition, emitterVelocity, 0);
         for(int i = 0; i < emitCount; i++){
-            vec3 newPartVel = normalize(initVelocity) ;
+            vec3 newPartVel = initVelocity;
             newPartVel = vec3(newPartVel.x + randRange(-velVariance.x, velVariance.x),
                             newPartVel.y + randRange(-velVariance.y, velVariance.y),
                             newPartVel.z + randRange(-velVariance.z, velVariance.z));
-            newPartVel = normalize(newPartVel);
+            newPartVel = normalize(newPartVel) * initSpeed;
             vec3 spawnPos = position0[0] + vec3(randRange(-1, 1), randRange(-1, 1), randRange(-1, 1)) * spawnRadius;
             emit(PARTICLE_TYPE, spawnPos, newPartVel, 0);
         }
@@ -106,11 +112,21 @@ void handleParticle(){
     float age = age0[0] + (delta * rand());
 	float agePer = age / lifeTime; 
 
-    float lSpeed = mix(speed, speed * speedDropPercent, agePer);
+    // float lSpeed = mix(speed, speed * speedDropPercent, agePer);
 
     if(age < lifeTime){
-        vec3 newPosition = position0[0] + (velocity0[0] * lSpeed * delta);
-        emit(PARTICLE_TYPE, newPosition, velocity0[0], age);
+        vec3 acceleration = (-velocity0[0] * dragStrength) + (constForceDir * constForceStrength);
+        // acceleration = min(length(acceleration), maxAccel) * normalize(acceleration);
+
+        // vec3 acceleration = vec3(0,1,0);
+        vec3 vel = velocity0[0] + (acceleration * delta);
+        // vec3 vel = velocity0[0];
+        float sp = length(vel);
+
+        // sp = clamp(sp, 0, maxSpeed);
+        vel = normalize(vel) * sp; 
+        vec3 newPosition = position0[0] + (vel * delta);
+        emit(PARTICLE_TYPE, newPosition, vel, age);
     }
 }
 

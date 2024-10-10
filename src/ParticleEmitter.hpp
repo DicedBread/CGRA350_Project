@@ -50,13 +50,18 @@ public:
     float initBillboardSize = 1;
     float endBillboardSize= 0.1;
     float lifeTime = 20;
-    float speed = 3;
+    float initSpeed = 3;
+    float maxSpeed = 100;
     float speedDropPercent = 0.5;
     glm::vec3 initVelocity = glm::vec3(0, 1, 0);
     glm::vec3 endColor = glm::vec3(1, 1, 1); 
     glm::vec3 initColor = glm::vec3(1, 1, 1);
-    
+    float dragStrength = 0;
+
     glm::vec3 velVariance = glm::vec3(0);
+    glm::vec3 constForceDir = glm::vec3(0);
+    float constForceStrength = 0;
+    
 
     bool isOneOff = false;
     bool shouldEmitOneOff = false;
