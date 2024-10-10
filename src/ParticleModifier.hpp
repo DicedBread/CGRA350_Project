@@ -14,6 +14,7 @@ public:
     
     ParticleModifier(ParticleEmitter& pEmit);
     ~ParticleModifier();
+    void example1();
     void drawUi();
 };
 

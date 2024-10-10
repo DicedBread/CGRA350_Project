@@ -31,7 +31,7 @@ void ParticleEmitter::InitParticleSystem(const vec3 &pos)
 
     texture = rgba_image(CGRA_SRCDIR + std::string("//res//textures//radGrad.png")).uploadTexture();
 
-    Particle data[1000];
+    Particle data[5000];
     data[0].type = 1;
     data[0].pos = pos;
     data[0].vel = vec3(0,0,0);

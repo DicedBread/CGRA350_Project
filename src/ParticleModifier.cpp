@@ -52,6 +52,23 @@ void ParticleModifier::drawUi(){
         ImGui::SliderFloat3("inital color", value_ptr(pe.initColor), 0, 1);
         ImGui::SliderFloat3("end color", value_ptr(pe.endColor), 0, 1);
 
+
+        if(ImGui::Button("example 1")){
+            example1();
+        }
     }
+}
+
+
+void ParticleModifier::example1(){
+    pe.emitTime = 0.1;
+    pe.emitCount = 9;
+    
+    pe.velVariance = glm::vec3(1, 0, 1);
+    pe.constForceDir = glm::vec3(0, -1, 0);
+    pe.constForceStrength = 1;
+    pe.initSpeed = 6;   
+    pe.initColor = glm::vec3(0, 1, 0.5);
+    pe.endColor = glm::vec3(1, 0, 0);
 
 }
