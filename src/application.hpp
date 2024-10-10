@@ -32,12 +32,15 @@ class Application {
     float m_yaw = .0;
     float m_distance = .0;
 
-    static constexpr const char* scenesStrings[] = {"main", "particle", "asteroid"};
+    static constexpr const char* scenesStrings[] = {"main", "particle", "asteroid", "PARTICLE_BENCH"};
     enum Scenes{
       MAIN,
       PARTICLE,
-      ASTEROID
+      ASTEROID,
+      PARTICLE_BENCH
     };
+
+    vector<ParticleEmitter> lotsOfParticles;
 
     int activeScene = MAIN;
 

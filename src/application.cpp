@@ -32,6 +32,22 @@ Application::Application(GLFWwindow *window) : m_window(window) {
         cout << i << " out of " << asteroidCount << " loaded" << endl;
     }
 
+    cout << "loading lots of particles" << endl;
+    int c = 5;
+    for(int i = 0; i < c; i++){
+        for(int j = 0; j < c; j++){
+            vec3 pos = vec3(i * 5 - ((i * c) / 2) , 0, j * 5 - ((j * c) / 2));
+            lotsOfParticles.push_back(ParticleEmitter());
+            lotsOfParticles.back().InitParticleSystem(pos);
+            cout << "particleEmitter " << lotsOfParticles.size() << " of " << c * c << endl; 
+        }
+    }
+
+    for(int i = 0; i <lotsOfParticles.size(); i++){
+        ParticleModifier(lotsOfParticles.at(i)).randomize();
+    }
+
+
     particleEmitter.InitParticleSystem(vec3(0));
 }
 
@@ -118,6 +134,15 @@ void Application::render() {
         m_asteroids.at(0).asteroid.update_model_transform(deltaTime);
         m_asteroids.at(0).asteroid.draw(view, proj);
         break;
+
+    case PARTICLE_BENCH:
+        for(int i = 0; i < lotsOfParticles.size(); i++){
+            lotsOfParticles.at(i).updateParticles(deltaTime);
+        }
+        for(int i = 0; i < lotsOfParticles.size(); i++){
+            lotsOfParticles.at(i).render(view, proj);
+        }
+        break;
     }
 }
 
@@ -129,7 +154,7 @@ void Application::renderGUI() {
     ImGui::Begin("Options", 0);
 
     if (ImGui::Combo("Active Scene", &activeScene, scenesStrings,
-                     sizeof(scenesStrings) / sizeof(const char *), 3)) {
+                     sizeof(scenesStrings) / sizeof(const char *), sizeof(scenesStrings) / sizeof(const char *))) {
         switch (activeScene) {
         case MAIN:
             // Regenerate the first asteroid, it may have been modified by the
