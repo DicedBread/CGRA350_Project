@@ -77,28 +77,27 @@ void ParticleModifier::example1(){
 }
 
 void ParticleModifier::randomize(){
-    srand(time(0));
-    
+
     // pe.emitterVelocity = vec3(randF(), randF(), randF());
     // pe.emitterSpeed = randF();
     // pe.emitTime = randF() * 2;
     // pe.emitCount = randF() * 10;
     // pe.lifeTime = randF() * 40;
     // pe.initVelocity = vec3(randF(), randF(), randF());
-    // pe.initSpeed = randF() * 20;
-    // pe.velVariance = vec3(randF(), randF(), randF());
-    // pe.constForceDir = vec3(randF(), randF(), randF());
-    // pe.constForceStrength = randF();
+    pe.initSpeed = randF() * 5;
+    pe.velVariance = vec3(randF(), randF(), randF());
+    pe.constForceDir = vec3(0, -randF(), 0);
+    pe.constForceStrength = randF();
     // pe.dragStrength = randF();
     
     // pe.spawnRadius = randF() * 10;
-    // pe.initBillboardSize = randF();
-    // pe.endBillboardSize = randF();
+    pe.initBillboardSize = randF();
+    pe.endBillboardSize = randF();
     pe.initColor = vec3(randF(), randF(), randF());
     pe.endColor = vec3(randF(), randF(), randF());
 
 }
 
 float ParticleModifier::randF(){
-    return (rand() / (float) RAND_MAX); 
+    return rand() / (float) RAND_MAX; 
 }

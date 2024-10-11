@@ -32,7 +32,7 @@ class Application {
     float m_yaw = .0;
     float m_distance = .0;
 
-    static constexpr const char* scenesStrings[] = {"main", "particle", "asteroid", "PARTICLE_BENCH"};
+    static constexpr const char* scenesStrings[] = {"main", "particle", "asteroid", "particle bench"};
     enum Scenes{
       MAIN,
       PARTICLE,
@@ -40,6 +40,8 @@ class Application {
       PARTICLE_BENCH
     };
 
+    int particleBenchCount = 400;
+    int partDist = 15;
     vector<ParticleEmitter> lotsOfParticles;
 
     int activeScene = MAIN;
@@ -99,6 +101,8 @@ class Application {
     void randomizeAsteroidParams(AsteroidAndPartEmitter &aAndPe);
 
     void peSetup(ParticleEmitter &pe);
+
+    void genereateLotsOfParticleEmitters();
 
     // input callbacks
     void cursorPosCallback(double xpos, double ypos);

@@ -32,21 +32,7 @@ Application::Application(GLFWwindow *window) : m_window(window) {
         cout << i << " out of " << asteroidCount << " loaded" << endl;
     }
 
-    cout << "loading lots of particles" << endl;
-    int c = 5;
-    for(int i = 0; i < c; i++){
-        for(int j = 0; j < c; j++){
-            vec3 pos = vec3(i * 5 - ((i * c) / 2) , 0, j * 5 - ((j * c) / 2));
-            lotsOfParticles.push_back(ParticleEmitter());
-            lotsOfParticles.back().InitParticleSystem(pos);
-            cout << "particleEmitter " << lotsOfParticles.size() << " of " << c * c << endl; 
-        }
-    }
-
-    for(int i = 0; i <lotsOfParticles.size(); i++){
-        ParticleModifier(lotsOfParticles.at(i)).randomize();
-    }
-
+    genereateLotsOfParticleEmitters();
 
     particleEmitter.InitParticleSystem(vec3(0));
 }
@@ -245,6 +231,15 @@ void Application::renderGUI() {
                 }
             }
             break;
+
+        case PARTICLE_BENCH:
+            ImGui::InputInt("Emitter Count", &particleBenchCount);
+            if(ImGui::Button("regenerate")){
+                genereateLotsOfParticleEmitters();
+            }
+
+
+            break;
     default:
         break;
     }
@@ -370,4 +365,24 @@ void Application::peSetup(ParticleEmitter& pe){
     pe.endColor = vec3(1, 0.8, 0);
     pe.lifeTime = 4;
     pe.spawnRadius = 1.5;
+}
+
+void Application::genereateLotsOfParticleEmitters(){
+    lotsOfParticles.clear();
+    cout << "loading lots of particles" << endl;
+    int c = sqrt(particleBenchCount);
+    for(int i = 0; i < c; i++){
+        for(int j = 0; j < c; j++){
+            vec3 pos = vec3(i * partDist - ((c * partDist) / 2) , 0, j * partDist - ((c * partDist) / 2));
+            lotsOfParticles.push_back(ParticleEmitter());
+            lotsOfParticles.back().InitParticleSystem(pos);
+            // ParticleModifier(lotsOfParticles.back()).randomize();
+            cout << "particleEmitter " << lotsOfParticles.size() << " of " << c * c << endl; 
+        }
+    }
+
+    for(int i = 0; i <lotsOfParticles.size(); i++){
+        ParticleModifier(lotsOfParticles.at(i)).randomize();
+    }
+
 }
