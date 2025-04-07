@@ -1,6 +1,6 @@
 # CGRA 350 Capstone project
 
-##### Procedually generated astriods 
+##### Procedurally generated asteroids    
 - my work on the project consisted of implementing a particle system using geometry shaders
 
 ![example image 1](/particleExample_3.png)
